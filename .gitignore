@@ -1,0 +1,58 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code settings
+.vscode/
+
+# ASP.NET Secrets folder
+**/secrets.json
+**/secrets/
+
+# Rider settings (caso use JetBrains)
+.idea/
+
+# Docker
+**/docker-compose.override.yml
+**/docker-compose.*.yml
+**/.docker/
+
+# IIS Express
+.vs/
+*.vspscc
+*.vssscc
+*.scc
+
+# Logs
+*.log
+
+# npm / node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Publish output
+publish/
+*.publish.xml
+
+# Configuration transform files
+*.Development.config
+*.Production.config
+*.Staging.config
+
+# Environment files
+.env
+.env.*
+
+# MacOS/Linux/Windows crap
+.DS_Store
+Thumbs.db
+
+# Optional: Ignore generated migrations (se você quiser controlar manualmente)
+# Migrations/
