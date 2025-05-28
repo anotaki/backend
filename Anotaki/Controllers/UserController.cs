@@ -1,6 +1,7 @@
 ﻿using anotaki_api.DTOs.Requests;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace anotaki_api.Controllers
 {
@@ -20,8 +21,8 @@ namespace anotaki_api.Controllers
                 message = "User created successfully.",
                 name = user.Name,
                 cpf = user.Cpf,
+                email = user.Email
             });
         }
-
     }
 }
