@@ -1,5 +1,6 @@
 
 using anotaki_api.Data;
+using anotaki_api.Exceptions;
 using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,8 +12,12 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 
 // Configurar o DbContext para usar PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -36,9 +41,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();
