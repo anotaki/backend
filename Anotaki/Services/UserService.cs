@@ -13,6 +13,11 @@ namespace anotaki_api.Services
     {
         private readonly AppDbContext _context = context;
 
+        public async Task<User> FindByEmail(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+        }
+
         public async Task<User> FindByCpf(string cpf)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Cpf == cpf);

@@ -9,5 +9,6 @@ namespace anotaki_api.Services.Interfaces
     {
         Task<User> CreateUser(CreateUserDTO userDTO);
         Task<User> FindByCpf(string cpf);
+        Task<User> FindByEmail(string email);
     }
 }

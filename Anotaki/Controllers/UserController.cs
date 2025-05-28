@@ -20,6 +20,7 @@ namespace anotaki_api.Controllers
                 message = "User created successfully.",
                 name = user.Name,
                 cpf = user.Cpf,
+                email= user.Email
             });
         }
 

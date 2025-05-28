@@ -16,10 +16,10 @@ namespace anotaki_api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            var user = await _userService.FindByCpf(loginDTO.Cpf);
+            var user = await _userService.FindByEmail(loginDTO.Email);
             if (user == null || !HashUtils.VerifyPassword(loginDTO.Password, user.Password))
             {
-                return Unauthorized(new { message = "Cpf or password invalid." });
+                return Unauthorized(new { message = "Email or password invalid." });
             }
 
             var token = _tokenService.CreateToken(user);
