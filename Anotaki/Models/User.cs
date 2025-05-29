@@ -32,4 +32,16 @@ namespace anotaki_api.Models
 
         public List<Address> Addresses { get; set; } = [];
     }
+
+    public static class Roles
+    {
+        public const string Admin = "admin";
+        public const string Default = "default";
+    }
+
+    public enum Role
+    {
+        Default,
+        Admin,
+    }
 }
