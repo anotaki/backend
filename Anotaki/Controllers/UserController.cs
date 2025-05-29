@@ -1,11 +1,14 @@
 ﻿using anotaki_api.DTOs.Requests;
+using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace anotaki_api.Controllers
 {
     [ApiController]
+    [Authorize(Roles = Roles.Admin)]
     [Route("/api/v1/users")]
     public class UserController(IUserService userService) : ControllerBase
     {
