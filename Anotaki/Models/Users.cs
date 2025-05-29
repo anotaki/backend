@@ -11,6 +11,9 @@ namespace anotaki_api.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
+        public Role Role { get; set; } = Role.Default;
+        
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(100, ErrorMessage = "Name must be at most 100 characters.")]
         public string Name { get; set; }
