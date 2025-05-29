@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTOs\Responses\**" />
     <Compile Remove="Middleware\**" />
+    <Content Remove="DTOs\Responses\**" />
     <Content Remove="Middleware\**" />
+    <EmbeddedResource Remove="DTOs\Responses\**" />
     <EmbeddedResource Remove="Middleware\**" />
+    <None Remove="DTOs\Responses\**" />
     <None Remove="Middleware\**" />
   </ItemGroup>
 
@@ -25,10 +29,6 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.11.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DTOs\Responses\" />
   </ItemGroup>
 
 </Project>

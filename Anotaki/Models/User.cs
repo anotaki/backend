@@ -29,5 +29,7 @@ namespace anotaki_api.Models
         [Required(ErrorMessage = "CPF is required.")]
         [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF must be exactly 11 numeric digits.")]
         public string Cpf { get; set; }
+
+        public List<Address> Addresses { get; set; } = [];
     }
 }
