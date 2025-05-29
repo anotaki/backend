@@ -17,13 +17,12 @@ namespace anotaki_api.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var role = user.Role.ToString().ToLowerInvariant();
 
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("role", role)
+                    new Claim(ClaimTypes.Role, role)
                 ]),
                 Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),
                 SigningCredentials = credentials,

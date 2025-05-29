@@ -5,7 +5,6 @@ using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace anotaki_api.Services
 {
@@ -31,7 +30,7 @@ namespace anotaki_api.Services
                 Email = userDTO.Email,
                 Cpf = userDTO.Cpf,
                 Password = HashUtils.HashPassword(userDTO.Password),
-
+                Role = Role.Default
             };
 
             if (await FindByCpf(newUser.Cpf) != null)
