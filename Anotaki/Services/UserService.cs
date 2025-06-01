@@ -5,12 +5,18 @@ using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace anotaki_api.Services
 {
     public class UserService(AppDbContext context) : IUserService
     {
         private readonly AppDbContext _context = context;
+
+        public async Task<User> FindById(int id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        }
 
         public async Task<User> FindByEmail(string email)
         {
@@ -47,6 +53,26 @@ namespace anotaki_api.Services
             await _context.SaveChangesAsync();
 
             return newUser;
+        }
+
+        public async Task CreateAddress(User user, CreateAddressDTO addressDTO)
+        {
+
+            var address = new Address
+            {
+                UserId = user.Id,
+                Street = addressDTO.Street,
+                Number = addressDTO.Number,
+                City = addressDTO.City,
+                State = addressDTO.State,
+                ZipCode = addressDTO.ZipCode,
+                Neighborhood = addressDTO.Neighborhood,
+                Complement = addressDTO.Complement
+            };
+
+            _context.Addresses.Add(address);
+
+            await _context.SaveChangesAsync();
         }
     }
 }
