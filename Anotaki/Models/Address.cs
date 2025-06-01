@@ -15,5 +15,6 @@ namespace anotaki_api.Models
         public string? Complement { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
+        public bool IsStandard { get; set; }
     }
 }

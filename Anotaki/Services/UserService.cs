@@ -58,6 +58,8 @@ namespace anotaki_api.Services
         public async Task CreateAddress(User user, CreateAddressDTO addressDTO)
         {
 
+            bool isFirstAddress = user.Addresses.Count == 0;
+
             var address = new Address
             {
                 UserId = user.Id,
@@ -67,7 +69,8 @@ namespace anotaki_api.Services
                 State = addressDTO.State,
                 ZipCode = addressDTO.ZipCode,
                 Neighborhood = addressDTO.Neighborhood,
-                Complement = addressDTO.Complement
+                Complement = addressDTO.Complement,
+                IsStandard = isFirstAddress
             };
 
             _context.Addresses.Add(address);
