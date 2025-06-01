@@ -15,7 +15,7 @@ namespace anotaki_api.Services
 
         public async Task<User> FindById(int id)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Users.Include(x=> x.Addresses).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<User> FindByEmail(string email)
