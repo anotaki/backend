@@ -1,3 +1,4 @@
+using anotaki_api.DTOs.Requests.Address;
 using anotaki_api.DTOs.Requests.User;
 using anotaki_api.DTOs.Response.User;
 using anotaki_api.Models.Response;
@@ -15,6 +16,12 @@ namespace anotaki_api.Controllers
     [Authorize]
     public class UserController(IUserService userService) : ControllerBase
     {
+
+        /**************************************************
+         * 
+         *                  User
+         * 
+         **************************************************/
         private readonly IUserService _userService = userService;
 
         [HttpPost]
@@ -32,6 +39,55 @@ namespace anotaki_api.Controllers
             return ApiResponse.Create("User created successfully!", StatusCodes.Status201Created, data);
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentUserInfo()
+        {
+            var userId = ClaimsUtils.GetUserId(User);
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "User not authenticated." });
+            }
+
+            var user = await _userService.FindById(userId.Value);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            // mapeando endereço
+            var defaultAddress = user.Addresses
+                .Where(a => a.IsStandard)
+                .Select(a => new UserAddressResponseDTO
+                {
+                    Id = a.Id,
+                    Street = a.Street,
+                    Number = a.Number,
+                    City = a.City,
+                    State = a.State,
+                    ZipCode = a.ZipCode,
+                    Neighborhood = a.Neighborhood,
+                    Complement = a.Complement,
+                    IsStandard = a.IsStandard
+                })
+                .FirstOrDefault();
+
+            var data = new UserResponseDTO
+            {
+                Cpf = user.Cpf,
+                Email = user.Email,
+                Name = user.Name,
+                DefaultAddress = defaultAddress
+            };
+
+            return ApiResponse.Create("Reading User Information", StatusCodes.Status200OK, data);
+        }
+
+        /**************************************************
+         * 
+         *                  Address
+         * 
+         **************************************************/
 
         [HttpPost]
         [Route("address")]
