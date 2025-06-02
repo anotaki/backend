@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace anotaki_api.DTOs.Requests.User
+namespace anotaki_api.DTOs.Requests.Address
 {
     public class CreateAddressRequestDTO
     {

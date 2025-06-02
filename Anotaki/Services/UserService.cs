@@ -1,4 +1,5 @@
 using anotaki_api.Data;
+using anotaki_api.DTOs.Requests.Address;
 using anotaki_api.DTOs.Requests.User;
 using anotaki_api.Exceptions;
 using anotaki_api.Models;
@@ -12,7 +13,11 @@ namespace anotaki_api.Services
     {
         private readonly AppDbContext _context = context;
 
-        // PUBLIC ASYNC 
+        /**************************************************
+         * 
+         *                  User
+         * 
+         **************************************************/
         public async Task<User?> FindById(int id)
         {
             return await _context.Users.Include(x => x.Addresses).FirstOrDefaultAsync(x => x.Id == id);
@@ -55,6 +60,12 @@ namespace anotaki_api.Services
             return newUser;
         }
 
+
+        /**************************************************
+         * 
+         *                  Address
+         * 
+         **************************************************/
         public async Task<Address> CreateAddress(User user, CreateAddressRequestDTO addressDTO)
         {
 
