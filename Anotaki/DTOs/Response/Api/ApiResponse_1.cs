@@ -2,7 +2,7 @@
 
 namespace anotaki_api.DTOs.Response.Auth
 {
-    public static class ApiResponseFactory
+    public static class ApiResponse_1
     {
         public static IActionResult Create<T>(string title, int statusCode, T? data = default)
         {
