@@ -1,8 +1,8 @@
 using anotaki_api.DTOs.Requests.Auth;
+using anotaki_api.Models.Response;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace anotaki_api.Controllers
 {
@@ -19,11 +19,11 @@ namespace anotaki_api.Controllers
 			var user = await _userService.FindByEmail(loginDTO.Email);
 			if (user == null || !HashUtils.VerifyPassword(loginDTO.Password, user.Password))
 			{
-				return Unauthorized(new { message = "Email or password invalid." });
-			}
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+            }
 
-      var token = _tokenService.CreateToken(user);
-      return ApiResponse.Create("User auth successfully.", StatusCodes.Status200OK, new { token });
+            var token = _tokenService.CreateToken(user);
+			return ApiResponse.Create("User auth successfully.", StatusCodes.Status200OK, new { token });
 		}
 	}
 }
