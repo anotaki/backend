@@ -1,12 +1,9 @@
-﻿using anotaki_api.DTOs.Requests.User;
+using anotaki_api.DTOs.Requests.User;
 using anotaki_api.DTOs.Response.User;
-using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Security.Claims;
 using static anotaki_api.Utils.ClaimUtils;
 
 namespace anotaki_api.Controllers

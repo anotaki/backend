@@ -1,4 +1,4 @@
-﻿using anotaki_api.Data;
+using anotaki_api.Data;
 using anotaki_api.DTOs.Requests.User;
 using anotaki_api.Exceptions;
 using anotaki_api.Models;
