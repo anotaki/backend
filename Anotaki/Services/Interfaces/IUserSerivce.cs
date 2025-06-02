@@ -10,5 +10,6 @@ namespace anotaki_api.Services.Interfaces
         Task<User?> FindByCpf(string cpf);
         Task<User?> FindByEmail(string email);
         Task<User?> FindById(int id);
+        Task<User> UpdateUser(UpdateUserRequestDTO userDTO, User user);
     }
 }

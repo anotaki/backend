@@ -5,6 +5,7 @@ using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static anotaki_api.Utils.ClaimUtils;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace anotaki_api.Controllers
 {
@@ -17,9 +18,9 @@ namespace anotaki_api.Controllers
         private readonly IUserService _userService = userService;
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDTO userDTO)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDTO dto)
         {
-            var user = await _userService.CreateUser(userDTO);
+            var user = await _userService.CreateUser(dto);
 
             var data = new UserResponseDTO
             {
@@ -38,13 +39,13 @@ namespace anotaki_api.Controllers
             var userId = ClaimsUtils.GetUserId(User);
             if (userId == null)
             {
-                return Unauthorized(new { message = "User not authenticated." });
+                return ApiResponse.Create("User not Authenticated.", StatusCodes.Status401Unauthorized);
             }
 
             var user = await _userService.FindById(userId.Value);
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
             }
 
             // mapeando endereço
@@ -75,5 +76,30 @@ namespace anotaki_api.Controllers
             return ApiResponse.Create("Reading User Information", StatusCodes.Status200OK, data);
         }
 
+        [HttpPatch]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequestDTO dto)
+        {
+            var userId = ClaimsUtils.GetUserId(User);
+            if (userId == null)
+            {
+                return ApiResponse.Create("User not Authenticated.", StatusCodes.Status401Unauthorized);
+            }
+
+            var user = await _userService.FindById(userId.Value);
+            if (user == null)
+            {
+                return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
+            }
+
+            try
+            {
+                await _userService.UpdateUser(dto, user);
+                return ApiResponse.Create("User updated!", StatusCodes.Status200OK);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create($"Error updating user: {ex.Message}", StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

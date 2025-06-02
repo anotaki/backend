@@ -54,5 +54,20 @@ namespace anotaki_api.Services
             return newUser;
         }
 
+        public async Task<User> UpdateUser(UpdateUserRequestDTO dto, User user)
+        {
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+                user.Name = dto.Name;
+
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                // TODO: utils de regex pra senha forte
+                user.Password = HashUtils.HashPassword(dto.Password);
+            }
+
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
     }
 }
