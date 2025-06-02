@@ -48,7 +48,7 @@ namespace anotaki_api.Controllers
                 return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
             }
 
-            // mapeando endereço
+            // mapeando endereï¿½o
             var defaultAddress = user.Addresses
                 .Where(a => a.IsStandard)
                 .Select(a => new UserAddressResponseDTO
@@ -100,42 +100,6 @@ namespace anotaki_api.Controllers
             {
                 return ApiResponse.Create($"Error updating user: {ex.Message}", StatusCodes.Status500InternalServerError);
             }
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> DeactivateUser()
-        {
-            var userId = ClaimsUtils.GetUserId(User);
-            if (userId == null)
-            {
-                return ApiResponse.Create("User not Authenticated.", StatusCodes.Status401Unauthorized);
-            }
-            var user = await _userService.FindById(userId.Value);
-            if (user == null)
-            {
-                return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
-            }
-
-            await _userService.DeactivateUser(user);
-
-            return ApiResponse.Create("User deleted successfully!", StatusCodes.Status200OK);
-        }
-
-        [HttpPatch("admin/activate/{id}")]
-        [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> ActivateUser(int id)
-        {
-            var user = await _userService.FindById(id);
-
-            if (user == null)
-                return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
-
-            if(user.IsActive)
-                return ApiResponse.Create("User is already active.", StatusCodes.Status400BadRequest);  
-
-            await _userService.ActivateUser(user);
-
-            return ApiResponse.Create("User activated successfully!", StatusCodes.Status200OK);
         }
     }
 }
