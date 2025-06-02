@@ -1,10 +1,12 @@
 using anotaki_api.DTOs.Requests.User;
 using anotaki_api.DTOs.Response.User;
+using anotaki_api.Models.Response;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static anotaki_api.Utils.ClaimUtils;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace anotaki_api.Controllers
 {
@@ -20,15 +22,15 @@ namespace anotaki_api.Controllers
         {
             var user = await _userService.CreateUser(userDTO);
 
-            var response = new UserResponseDTO
+            var data = new UserResponseDTO
             {
-                Message = "User created successfully.",
                 Name = user.Name,
                 Cpf = user.Cpf,
                 Email = user.Email
             };
 
-            return StatusCode(StatusCodes.Status201Created, response);
+            return ApiResponse.Create("User created successfully!", StatusCodes.Status201Created, data);
+
         }
 
         [HttpPost]
@@ -52,27 +54,22 @@ namespace anotaki_api.Controllers
             {
                 var createdAddress = await _userService.CreateAddress(user, addressDTO);
 
-                var response = new CreateAddressResponseDTO
+                var data = new UserAddressDTO
                 {
-                    Message = $"Address saved for user #{userId}",
-                    Address = new AddressResponseDTO
-                    {
-                        Street = createdAddress.Street,
-                        Number = createdAddress.Number,
-                        City = createdAddress.City,
-                        State = createdAddress.State,
-                        ZipCode = createdAddress.ZipCode,
-                        Neighborhood = createdAddress.Neighborhood,
-                        Complement = createdAddress.Complement,
-                        IsStandard = createdAddress.IsStandard
-                    }
+                    Street = createdAddress.Street,
+                    Number = createdAddress.Number,
+                    City = createdAddress.City,
+                    ZipCode = createdAddress.ZipCode,
+                    Neighborhood = createdAddress.Neighborhood,
+                    Complement = createdAddress.Complement ?? string.Empty,
+                    IsStandard = createdAddress.IsStandard
                 };
 
-                return Ok(response);
+                return ApiResponse.Create("Address saved!", StatusCodes.Status200OK, data);
             }
             catch (DbUpdateException ex)
             {
-                return BadRequest(new { message = "Failed to save address.", error = ex.Message });
+                return ApiResponse.Create("Failed to save address!", StatusCodes.Status400BadRequest, ex.Message);
             }
         }
 
@@ -84,23 +81,23 @@ namespace anotaki_api.Controllers
             var userId = ClaimsUtils.GetUserId(User);
             if (userId == null)
             {
-                return Unauthorized(new { message = "User not authenticated." });
+                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
             }
 
             var user = await _userService.FindById(userId.Value);
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
             }
 
             try
             {
                 await _userService.UpdateUserAddress(user, addressId, addressDTO);
-                return Ok(new { message = "Address updated successfully." });
+                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return ApiResponse.Create("Failed to update address.", StatusCodes.Status400BadRequest, ex.Message);
             }
         }
 
@@ -112,14 +109,14 @@ namespace anotaki_api.Controllers
             var userId = ClaimsUtils.GetUserId(User);
             if (userId == null)
             {
-                return Unauthorized(new { message = "User not authenticated." });
+                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
             }
 
 
             var user = await _userService.FindById(userId.Value);
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
             }
 
             try
@@ -128,14 +125,14 @@ namespace anotaki_api.Controllers
             }
             catch (DbUpdateException ex)
             {
-                return BadRequest(new { message = "Failed to retrieve addresses.", error = ex.Message });
+                return ApiResponse.Create("Failed to retrieve addresses.", StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return ApiResponse.Create("Unexpected error occurred.", StatusCodes.Status400BadRequest, ex.Message);
             }
 
-            var response = user.Addresses.Select(a => new AddressResponseDTO
+            var data = user.Addresses.Select(a => new UserAddressDTO
             {
                 Id = a.Id,
                 City = a.City,
@@ -148,7 +145,7 @@ namespace anotaki_api.Controllers
                 IsStandard = a.IsStandard
             }).ToList();
 
-            return Ok(response);
+            return ApiResponse.Create("User addresses fetched successfully.", StatusCodes.Status200OK, data);
 
         }
 
@@ -161,26 +158,26 @@ namespace anotaki_api.Controllers
             var userId = ClaimsUtils.GetUserId(User);
             if (userId == null)
             {
-                return Unauthorized(new { message = "User not authenticated." });
+                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
             }
             var user = await _userService.FindById(userId.Value);
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
             }
 
             try
             {
                 await _userService.DeleteUserAddress(user, addressId);
-                return Ok("Address removed");
+                return ApiResponse.Create("Address removed successfully.", StatusCodes.Status200OK);
             }
             catch (DbUpdateException ex)
             {
-                return BadRequest(new { message = "Failed to remove address from database.", error = ex.Message });
+                return ApiResponse.Create("Failed to remove address from database.", StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return ApiResponse.Create("Unexpected error occurred.", StatusCodes.Status400BadRequest, ex.Message);
             }
         }
     }
