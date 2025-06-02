@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace anotaki_api.DTOs.Response.Auth
+namespace anotaki_api.DTOs.Response.Api
 {
-    public static class ApiResponse_1
+    public static class ApiResponse
     {
         public static IActionResult Create<T>(string title, int statusCode, T? data = default)
         {

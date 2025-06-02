@@ -1,4 +1,4 @@
-﻿namespace anotaki_api.DTOs.Response.Auth
+﻿namespace anotaki_api.DTOs.Response.Api
 {
     public class ApiResponse<T>
     {

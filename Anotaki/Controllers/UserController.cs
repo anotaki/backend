@@ -1,11 +1,11 @@
 using anotaki_api.DTOs.Requests.User;
+using anotaki_api.DTOs.Response.Api;
 using anotaki_api.DTOs.Response.User;
-using anotaki_api.Models.Response;
+using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static anotaki_api.Utils.ClaimUtils;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace anotaki_api.Controllers
 {
@@ -121,5 +121,21 @@ namespace anotaki_api.Controllers
             return ApiResponse.Create("User deleted successfully!", StatusCodes.Status200OK);
         }
 
+        [HttpPatch("admin/activate/{id}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> ActivateUser(int id)
+        {
+            var user = await _userService.FindById(id);
+
+            if (user == null)
+                return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
+
+            if(user.IsActive)
+                return ApiResponse.Create("User is already active.", StatusCodes.Status400BadRequest);  
+
+            await _userService.ActivateUser(user);
+
+            return ApiResponse.Create("User activated successfully!", StatusCodes.Status200OK);
+        }
     }
 }

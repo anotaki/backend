@@ -1,6 +1,6 @@
 ﻿using anotaki_api.DTOs.Requests.Address;
+using anotaki_api.DTOs.Response.Api;
 using anotaki_api.DTOs.Response.User;
-using anotaki_api.Models.Response;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
