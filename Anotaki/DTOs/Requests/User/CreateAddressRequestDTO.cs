@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace anotaki_api.DTOs.Requests
+namespace anotaki_api.DTOs.Requests.User
 {
-    public class CreateAddressDTO
+    public class CreateAddressRequestDTO
     {
         [Required]
         public string City { get; set; } = string.Empty;

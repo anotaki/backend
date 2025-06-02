@@ -1,4 +1,4 @@
-﻿using anotaki_api.DTOs.Requests;
+﻿using anotaki_api.DTOs.Requests.Auth;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.AspNetCore.Mvc;

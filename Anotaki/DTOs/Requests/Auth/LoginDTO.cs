@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace anotaki_api.DTOs.Requests
+namespace anotaki_api.DTOs.Requests.Auth
 {
     public class LoginDTO
     {
