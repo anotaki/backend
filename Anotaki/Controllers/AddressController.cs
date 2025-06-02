@@ -57,33 +57,6 @@ namespace anotaki_api.Controllers
             }
         }
 
-        [HttpPatch]
-        [Authorize]
-        public async Task<IActionResult> UpdateAddress([FromQuery] int addressId, [FromBody] UpdateAddressRequestDTO addressDTO)
-        {
-            var userId = ClaimsUtils.GetUserId(User);
-            if (userId == null)
-            {
-                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-            }
-
-            var user = await _userService.FindById(userId.Value);
-            if (user == null)
-            {
-                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-            }
-
-            try
-            {
-                await _addressService.UpdateUserAddress(user, addressId, addressDTO);
-                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to update address.", StatusCodes.Status400BadRequest, ex.Message);
-            }
-        }
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAllUserAddress()
@@ -129,6 +102,33 @@ namespace anotaki_api.Controllers
 
             return ApiResponse.Create("User addresses fetched successfully.", StatusCodes.Status200OK, data);
 
+        }
+
+        [HttpPatch]
+        [Authorize]
+        public async Task<IActionResult> UpdateAddress([FromQuery] int addressId, [FromBody] UpdateAddressRequestDTO addressDTO)
+        {
+            var userId = ClaimsUtils.GetUserId(User);
+            if (userId == null)
+            {
+                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
+            }
+
+            var user = await _userService.FindById(userId.Value);
+            if (user == null)
+            {
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+            }
+
+            try
+            {
+                await _addressService.UpdateUserAddress(user, addressId, addressDTO);
+                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to update address.", StatusCodes.Status400BadRequest, ex.Message);
+            }
         }
 
 

@@ -11,5 +11,7 @@ namespace anotaki_api.Services.Interfaces
         Task<User?> FindByEmail(string email);
         Task<User?> FindById(int id);
         Task<User> UpdateUser(UpdateUserRequestDTO userDTO, User user);
+        Task DeactivateUser(User user);
+
     }
 }

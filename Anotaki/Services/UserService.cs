@@ -69,5 +69,18 @@ namespace anotaki_api.Services
             return user;
         }
 
+        public async Task DeactivateUser(User user)
+        {
+            try
+            {
+                user.IsActive = false;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Cannot deactivate user: {ex.Message}");
+            }
+        }
     }
 }
