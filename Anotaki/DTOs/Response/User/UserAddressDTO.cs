@@ -1,6 +1,6 @@
 ﻿namespace anotaki_api.DTOs.Response.User
 {
-    public class AddressResponseDTO
+    public class UserAddressDTO
     {
         public int Id { get; set; }
         public string Street { get; set; }

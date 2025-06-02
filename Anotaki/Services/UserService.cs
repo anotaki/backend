@@ -5,7 +5,6 @@ using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace anotaki_api.Services
 {
@@ -14,17 +13,17 @@ namespace anotaki_api.Services
         private readonly AppDbContext _context = context;
 
         // PUBLIC ASYNC 
-        public async Task<User> FindById(int id)
+        public async Task<User?> FindById(int id)
         {
             return await _context.Users.Include(x => x.Addresses).FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<User> FindByEmail(string email)
+        public async Task<User?> FindByEmail(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task<User> FindByCpf(string cpf)
+        public async Task<User?> FindByCpf(string cpf)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Cpf == cpf);
         }
@@ -87,10 +86,8 @@ namespace anotaki_api.Services
 
         public async Task DeleteUserAddress(User user, int addresId)
         {
-
-
-            Address address = user.Addresses.Find(a => a.Id == addresId);
-            if (address == null)
+            Address? address = user.Addresses.Find(a => a.Id == addresId);
+            if (address is null)
                 throw new Exception("Address not found or does not belong to user.");
 
             try
@@ -107,7 +104,7 @@ namespace anotaki_api.Services
         public async Task UpdateUserAddress(User user, int addressId, UpdateAddressRequestDTO dto)
         {
             var address = user.Addresses.FirstOrDefault(a => a.Id == addressId);
-            if (address == null)
+            if (address is null)
                 throw new Exception("Address not found or does not belong to user.");
 
             if (dto.City != null) address.City = dto.City;
@@ -137,7 +134,7 @@ namespace anotaki_api.Services
 
 
         // PRIVATE FUNCTIONS
-        private void SetStandardAddress(List<Address> addresses, int standardAddressId)
+        private static void SetStandardAddress(List<Address> addresses, int standardAddressId)
         {
             bool addressFound = false;
 
