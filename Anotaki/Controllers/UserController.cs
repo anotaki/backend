@@ -54,7 +54,7 @@ namespace anotaki_api.Controllers
             {
                 var createdAddress = await _userService.CreateAddress(user, addressDTO);
 
-                var data = new UserAddressDTO
+                var data = new UserAddressResponseDTO
                 {
                     Street = createdAddress.Street,
                     Number = createdAddress.Number,
@@ -132,7 +132,7 @@ namespace anotaki_api.Controllers
                 return ApiResponse.Create("Unexpected error occurred.", StatusCodes.Status400BadRequest, ex.Message);
             }
 
-            var data = user.Addresses.Select(a => new UserAddressDTO
+            var data = user.Addresses.Select(a => new UserAddressResponseDTO
             {
                 Id = a.Id,
                 City = a.City,
