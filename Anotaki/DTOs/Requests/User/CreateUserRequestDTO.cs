@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace anotaki_api.DTOs.Requests
+namespace anotaki_api.DTOs.Requests.User
 {
-    public class CreateUserDTO
+    public class CreateUserRequestDTO
     {
         [Required]
         [MaxLength(100)]

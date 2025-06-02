@@ -1,5 +1,4 @@
-﻿using anotaki_api.DTOs.Requests;
-using anotaki_api.Models.Response;
+using anotaki_api.DTOs.Requests.Auth;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +22,8 @@ namespace anotaki_api.Controllers
 				return Unauthorized(new { message = "Email or password invalid." });
 			}
 
-            var token = _tokenService.CreateToken(user);
-
-            return ApiResponse.Create("User auth successfully.", StatusCodes.Status200OK, new { token });
+      var token = _tokenService.CreateToken(user);
+      return ApiResponse.Create("User auth successfully.", StatusCodes.Status200OK, new { token });
 		}
 	}
 }
