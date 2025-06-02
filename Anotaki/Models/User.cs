@@ -30,7 +30,9 @@ namespace anotaki_api.Models
 		public string Cpf { get; set; }
 
 		public List<Address> Addresses { get; set; } = [];
-	}
+
+		public bool IsActive { get; set; } = true;
+    }
 
 	public static class Roles
 	{
