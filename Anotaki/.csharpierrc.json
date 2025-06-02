@@ -1,0 +1,8 @@
+// REQUIREMENTS: https://marketplace.visualstudio.com/items?itemName=csharpier.CSharpier,
+// AFTER INSTALL: TOOLS > OPTIONS > CSHARPIER > REFORMAT WITH CSHARPIER ON SAVE = TRUE (GLOBAL OU JUST FOR SLN)
+{
+  "printWidth": 140,
+  "useTabs": true,
+  "indentSize": 4,
+  "endOfLine": "auto"
+}
