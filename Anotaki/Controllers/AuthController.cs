@@ -23,7 +23,14 @@ namespace anotaki_api.Controllers
             }
 
             var token = _tokenService.CreateToken(user);
-			return ApiResponse.Create("User auth successfully.", StatusCodes.Status200OK, new { token });
+
+			var userData = new
+			{
+				user,
+				token
+			};
+
+            return ApiResponse.Create("User auth successfully.", StatusCodes.Status200OK, userData);
 		}
 	}
 }

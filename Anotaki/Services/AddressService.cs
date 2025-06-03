@@ -35,33 +35,21 @@ namespace anotaki_api.Services
             return address;
         }
 
-        public async Task<List<Address>> GetAllUserAddress(User user)
+        public async Task DeleteUserAddress(User user, int id)
         {
-            return await _context.Addresses.Where(x => x.UserId == user.Id).ToListAsync();
+            var address = _context.Addresses.Find(id);
+            if (address is null)
+                throw new Exception("Address not found.");
+
+            _context.Addresses.Remove(address);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteUserAddress(User user, int addresId)
+        public async Task<Address> UpdateUserAddress(int id, UpdateAddressRequestDTO dto, User user)
         {
-            Address? address = user.Addresses.Find(a => a.Id == addresId);
+            var address = _context.Addresses.Find(id);
             if (address is null)
-                throw new Exception("Address not found or does not belong to user.");
-
-            try
-            {
-                _context.Addresses.Remove(address);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Cannot remove User Address: {ex}");
-            }
-        }
-
-        public async Task UpdateUserAddress(User user, int addressId, UpdateAddressRequestDTO dto)
-        {
-            var address = user.Addresses.FirstOrDefault(a => a.Id == addressId);
-            if (address is null)
-                throw new Exception("Address not found or does not belong to user.");
+                throw new Exception("Address not found.");
 
             if (dto.City != null) address.City = dto.City;
             if (dto.State != null) address.State = dto.State;
@@ -71,46 +59,32 @@ namespace anotaki_api.Services
             if (dto.Number != null) address.Number = dto.Number;
             if (dto.Complement != null) address.Complement = dto.Complement;
 
-            // alterar endereço padrão
-            if (dto.IsStandard.HasValue && dto.IsStandard.Value)
-            {
-                SetStandardAddress(user.Addresses, address.Id);
-            }
-            else if (address.IsStandard)
-            {
-                bool isOnlyStandard = user.Addresses.Count(a => a.IsStandard) == 1;
-                if (isOnlyStandard)
-                    throw new Exception("Cannot unset the only standard address. At least one must remain.");
-                address.IsStandard = false;
-            }
-
             await _context.SaveChangesAsync();
-
+            return address;
         }
 
-
-
-        private static void SetStandardAddress(List<Address> addresses, int standardAddressId)
+        public async Task<Address> SetStandardAddress(bool flag, int id, int userId)
         {
-            bool addressFound = false;
+            var address = _context.Addresses.Find(id);
+            if (address is null)
+                throw new Exception("Address not found");
 
-            foreach (var addr in addresses)
+            if (flag)
             {
-                if (addr.Id == standardAddressId)
-                {
-                    addr.IsStandard = true;
-                    addressFound = true;
-                }
-                else
+                var addr = await _context.Addresses.FirstOrDefaultAsync(a => a.IsStandard && a.UserId == userId);
+                if (addr is not null)
                 {
                     addr.IsStandard = false;
+                    _context.Update(addr);
                 }
             }
 
-            if (!addressFound)
-            {
-                throw new Exception("Address to set as standard not found.");
-            }
+            address.IsStandard = flag;
+
+            _context.Update(address);
+            await _context.SaveChangesAsync();
+            return address;
         }
+
     }
 }

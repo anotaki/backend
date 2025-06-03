@@ -19,12 +19,12 @@ namespace anotaki_api.Services
 
         public async Task<User?> FindByEmail(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            return await _context.Users.Include(x=>x.Addresses).FirstOrDefaultAsync(x => x.Email == email);
         }
 
         public async Task<User?> FindByCpf(string cpf)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Cpf == cpf);
+            return await _context.Users.Include(x=>x.Addresses).FirstOrDefaultAsync(x => x.Cpf == cpf);
         }
 
         public async Task<User> CreateUser(CreateUserRequestDTO userDTO)

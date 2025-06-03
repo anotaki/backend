@@ -2,16 +2,17 @@
 using anotaki_api.DTOs.Response.Api;
 using anotaki_api.DTOs.Response.User;
 using anotaki_api.Services.Interfaces;
+using anotaki_api.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static anotaki_api.Utils.ClaimUtils;
 
 namespace anotaki_api.Controllers
 {
     [Route("api/v1/address")]
     [ApiController]
-    public class AddressController (IUserService userService, IAddressService addressService) : ControllerBase
+    [Authorize]
+    public class AddressController(IUserService userService, IAddressService addressService) : ControllerBase
     {
 
         private readonly IUserService _userService = userService;
@@ -19,26 +20,22 @@ namespace anotaki_api.Controllers
 
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> CreateAddress(CreateAddressRequestDTO addressDTO)
         {
-            var userId = ClaimsUtils.GetUserId(User);
+            var userId = ClaimUtils.GetUserId(User);
             if (userId == null)
-            {
                 return Unauthorized(new { message = "User not authenticated." });
-            }
+
 
             var user = await _userService.FindById(userId.Value);
             if (user == null)
-            {
                 return NotFound(new { message = "User not found." });
-            }
 
             try
             {
                 var createdAddress = await _addressService.CreateAddress(user, addressDTO);
 
-                var data = new UserAddressResponseDTO
+                var data = new AddressResponseDTO
                 {
                     Street = createdAddress.Street,
                     Number = createdAddress.Number,
@@ -57,73 +54,39 @@ namespace anotaki_api.Controllers
             }
         }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetAllUserAddress()
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateAddress([FromRoute] int id, [FromBody] UpdateAddressRequestDTO addressDTO)
         {
-            var userId = ClaimsUtils.GetUserId(User);
+            var userId = ClaimUtils.GetUserId(User);
             if (userId == null)
-            {
                 return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-            }
 
 
             var user = await _userService.FindById(userId.Value);
             if (user == null)
-            {
+
                 return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-            }
+
+
+            var address = user.Addresses.FirstOrDefault(a => a.Id == id);
+            if (address == null)
+                return ApiResponse.Create("Address not belong to user.", StatusCodes.Status404NotFound);
 
             try
             {
-                await _addressService.GetAllUserAddress(user);
-            }
-            catch (DbUpdateException ex)
-            {
-                return ApiResponse.Create("Failed to retrieve addresses.", StatusCodes.Status400BadRequest, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Unexpected error occurred.", StatusCodes.Status400BadRequest, ex.Message);
-            }
+                var updatedAddress = await _addressService.UpdateUserAddress(id, addressDTO, user);
+                var data = new AddressResponseDTO
+                {
+                    Street = updatedAddress.Street,
+                    Number = updatedAddress.Number,
+                    City = updatedAddress.City,
+                    ZipCode = updatedAddress.ZipCode,
+                    Neighborhood = updatedAddress.Neighborhood,
+                    Complement = updatedAddress.Complement ?? string.Empty,
+                    IsStandard = updatedAddress.IsStandard
+                };
 
-            var data = user.Addresses.Select(a => new UserAddressResponseDTO
-            {
-                Id = a.Id,
-                City = a.City,
-                State = a.State,
-                ZipCode = a.ZipCode,
-                Neighborhood = a.Neighborhood,
-                Street = a.Street,
-                Number = a.Number,
-                Complement = a.Complement,
-                IsStandard = a.IsStandard
-            }).ToList();
-
-            return ApiResponse.Create("User addresses fetched successfully.", StatusCodes.Status200OK, data);
-
-        }
-
-        [HttpPatch]
-        [Authorize]
-        public async Task<IActionResult> UpdateAddress([FromQuery] int addressId, [FromBody] UpdateAddressRequestDTO addressDTO)
-        {
-            var userId = ClaimsUtils.GetUserId(User);
-            if (userId == null)
-            {
-                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-            }
-
-            var user = await _userService.FindById(userId.Value);
-            if (user == null)
-            {
-                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-            }
-
-            try
-            {
-                await _addressService.UpdateUserAddress(user, addressId, addressDTO);
-                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK);
+                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK, data);
             }
             catch (Exception ex)
             {
@@ -131,30 +94,62 @@ namespace anotaki_api.Controllers
             }
         }
 
-
-        [HttpDelete]
-        [Authorize]
-        public async Task<IActionResult> DeleteUserAddress([FromBody] int addressId)
+        [HttpPatch("set-standard/{id}")]
+        public async Task<IActionResult> SetStandardAddress([FromQuery] bool flag, [FromRoute] int id)
         {
-            var userId = ClaimsUtils.GetUserId(User);
+            var userId = ClaimUtils.GetUserId(User);
             if (userId == null)
-            {
                 return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-            }
+
             var user = await _userService.FindById(userId.Value);
             if (user == null)
-            {
                 return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-            }
+
+            var address = user.Addresses.FirstOrDefault(a => a.Id == id);
+            if (address == null)
+                return ApiResponse.Create("Address not belong to user.", StatusCodes.Status404NotFound);
 
             try
             {
-                await _addressService.DeleteUserAddress(user, addressId);
-                return ApiResponse.Create("Address removed successfully.", StatusCodes.Status200OK);
+                var updatedAddress = await _addressService.SetStandardAddress(flag, id, userId.Value);
+                var data = new AddressResponseDTO
+                {
+                    Street = updatedAddress.Street,
+                    Number = updatedAddress.Number,
+                    City = updatedAddress.City,
+                    ZipCode = updatedAddress.ZipCode,
+                    Neighborhood = updatedAddress.Neighborhood,
+                    Complement = updatedAddress.Complement ?? string.Empty,
+                    IsStandard = updatedAddress.IsStandard
+                };
+
+                return ApiResponse.Create("Standard address updated successfully.", StatusCodes.Status200OK, data);
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                return ApiResponse.Create("Failed to remove address from database.", StatusCodes.Status400BadRequest, ex.Message);
+                return ApiResponse.Create("Unexpected error occurred.", StatusCodes.Status400BadRequest, ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserAddress([FromRoute] int id)
+        {
+            var userId = ClaimUtils.GetUserId(User);
+            if (userId == null)
+                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
+
+            var user = await _userService.FindById(userId.Value);
+            if (user == null)
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+            var address = user.Addresses.FirstOrDefault(a => a.Id == id);
+            if (address == null)
+                return ApiResponse.Create("Address not belong to user.", StatusCodes.Status404NotFound);
+
+            try
+            {
+                await _addressService.DeleteUserAddress(user, id);
+                return ApiResponse.Create("Address removed successfully.", StatusCodes.Status200OK);
             }
             catch (Exception ex)
             {

@@ -6,8 +6,8 @@ namespace anotaki_api.Services.Interfaces
     public interface IAddressService
     {
         Task<Address> CreateAddress(User user, CreateAddressRequestDTO addressDTO);
-        Task UpdateUserAddress(User user, int addressId, UpdateAddressRequestDTO dto);
-        Task<List<Address>> GetAllUserAddress(User user);
-        Task DeleteUserAddress(User user, int addressId);
+        Task DeleteUserAddress(User user, int id);
+        Task<Address> SetStandardAddress(bool flag, int id, int userId);
+        Task<Address> UpdateUserAddress(int id, UpdateAddressRequestDTO dto, User user);
     }
 }
