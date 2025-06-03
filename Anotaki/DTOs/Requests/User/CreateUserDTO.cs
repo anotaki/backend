@@ -2,7 +2,7 @@
 
 namespace anotaki_api.DTOs.Requests.User
 {
-    public class CreateUserRequestDTO
+    public class CreateUserDTO
     {
         [Required]
         [MaxLength(100)]
