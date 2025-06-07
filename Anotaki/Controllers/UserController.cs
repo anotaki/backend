@@ -19,7 +19,7 @@ namespace anotaki_api.Controllers
         private readonly IUserService _userService = userService;
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDTO dto)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO dto)
         {
             var user = await _userService.CreateUser(dto);
 
@@ -35,7 +35,7 @@ namespace anotaki_api.Controllers
         }
 
         [HttpPatch]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequestDTO dto)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO dto)
         {
             var userId = ClaimUtils.GetUserId(User);
             if (userId == null)

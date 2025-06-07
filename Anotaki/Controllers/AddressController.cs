@@ -1,6 +1,6 @@
 ﻿using anotaki_api.DTOs.Requests.Address;
+using anotaki_api.DTOs.Response.Address;
 using anotaki_api.DTOs.Response.Api;
-using anotaki_api.DTOs.Response.User;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +20,7 @@ namespace anotaki_api.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateAddress(CreateAddressRequestDTO addressDTO)
+        public async Task<IActionResult> CreateAddress(CreateAddressDTO addressDTO)
         {
             var userId = ClaimUtils.GetUserId(User);
             if (userId == null)
@@ -55,7 +55,7 @@ namespace anotaki_api.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateAddress([FromRoute] int id, [FromBody] UpdateAddressRequestDTO addressDTO)
+        public async Task<IActionResult> UpdateAddress([FromRoute] int id, [FromBody] UpdateAddressDTO addressDTO)
         {
             var userId = ClaimUtils.GetUserId(User);
             if (userId == null)

@@ -2,7 +2,7 @@
 
 namespace anotaki_api.DTOs.Requests.Address
 {
-    public class CreateAddressRequestDTO
+    public class CreateAddressDTO
     {
         [Required]
         public string City { get; set; } = string.Empty;
