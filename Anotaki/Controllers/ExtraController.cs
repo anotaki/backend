@@ -29,31 +29,16 @@ namespace anotaki_api.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto, [FromQuery] int productId)
+        public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto)
         {
             try
             {
-                var data = await _extraService.CreateExtra(dto, productId);
+                var data = await _extraService.CreateExtra(dto);
                 return ApiResponse.Create("Extra created successfully.", StatusCodes.Status201Created, data);
             }
             catch (Exception ex)
             {
                 return ApiResponse.Create("Failed to create extra.", StatusCodes.Status400BadRequest, ex);
-            }
-        }
-
-        [HttpGet]
-        [Route("get-by")]
-        public async Task<IActionResult> GetAllExtrasByProductId([FromQuery] int productId)
-        {
-            try
-            {
-                var data = await _extraService.GetAllExtrasByProductId(productId);
-                return ApiResponse.Create("Extras retrieved by product successfully.", StatusCodes.Status200OK, data);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to retrieve extras by product.", StatusCodes.Status400BadRequest, ex);
             }
         }
 
@@ -82,6 +67,20 @@ namespace anotaki_api.Controllers
             catch (Exception ex)
             {
                 return ApiResponse.Create("Failed to update extra.", StatusCodes.Status400BadRequest, ex);
+            }
+        }
+
+        [HttpPost]
+        [Route("add-to-product/{productId}")]
+        public async Task<IActionResult> AddMultipleExtrasToProduct([FromRoute] int productId, [FromBody] List<int> extraIds)
+        {
+            try
+            {
+                var data = await _extraService.AddMultipleExtrasToProduct(productId, extraIds);
+                return ApiResponse.Create("Add Multiple Extras to Product", StatusCodes.Status200OK, data);
+            } catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to add.", StatusCodes.Status400BadRequest, ex);
             }
         }
     }

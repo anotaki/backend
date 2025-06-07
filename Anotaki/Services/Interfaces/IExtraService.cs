@@ -5,11 +5,11 @@ namespace anotaki_api.Services.Interfaces
 {
     public interface IExtraService
     {
-        Task<Extra> CreateExtra(CreateExtraRequestDTO dto, int productId);
+        Task<Extra> CreateExtra(CreateExtraRequestDTO dto);
         Task DeleteExtra(int extraId);
         Task<Extra?> FindById(int extraId);
         Task<List<Extra>> GetAllExtras();
-        Task<List<Extra>> GetAllExtrasByProductId(int productId);
         Task<Extra> UpdateExtra(Extra extra);
+        Task<List<ProductExtra>> AddMultipleExtrasToProduct(int productId, List<int> extraIdList);
     }
 }
