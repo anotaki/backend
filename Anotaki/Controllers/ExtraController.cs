@@ -70,5 +70,19 @@ namespace anotaki_api.Controllers
                 return ApiResponse.Create("Failed to delete extra.", StatusCodes.Status400BadRequest, ex);
             }
         }
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateExtra([FromBody] Extra extra)
+        {
+            try
+            {
+                var data = await _extraService.UpdateExtra(extra);
+                return ApiResponse.Create("Extra Updated", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to update extra.", StatusCodes.Status400BadRequest, ex);
+            }
+        }
     }
 }

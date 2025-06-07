@@ -10,5 +10,6 @@ namespace anotaki_api.Services.Interfaces
         Task<Extra?> FindById(int extraId);
         Task<List<Extra>> GetAllExtras();
         Task<List<Extra>> GetAllExtrasByProductId(int productId);
+        Task<Extra> UpdateExtra(Extra extra);
     }
 }

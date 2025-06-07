@@ -68,8 +68,8 @@ namespace anotaki_api.Services
 
         public async Task DeleteExtra(int extraId)
         {
-            Extra? extra = await FindById(extraId);
-            if (extra == null)
+            Extra? existingExtra = await FindById(extraId);
+            if (existingExtra == null)
                 throw new Exception("Extra not found");
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -81,7 +81,7 @@ namespace anotaki_api.Services
                     .ToListAsync();
 
                 _context.ProductExtras.RemoveRange(related);
-                _context.Extras.Remove(extra);
+                _context.Extras.Remove(existingExtra);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
@@ -90,6 +90,26 @@ namespace anotaki_api.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<Extra> UpdateExtra(Extra extra)
+        {
+
+            Extra? existingExtra = await FindById(extra.Id);
+
+            if (existingExtra == null)
+                throw new Exception("Extra not found");
+
+            if (!string.IsNullOrWhiteSpace(extra.Name))
+                existingExtra.Name = extra.Name;
+
+            if (extra.Price != 0)
+                existingExtra.Price = extra.Price;
+
+            _context.Extras.Update(existingExtra);
+            await _context.SaveChangesAsync();
+
+            return existingExtra;
         }
     }
 }
