@@ -56,5 +56,19 @@ namespace anotaki_api.Controllers
                 return ApiResponse.Create("Failed to retrieve extras by product.", StatusCodes.Status400BadRequest, ex);
             }
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteExtra([FromQuery] int extraId)
+        {
+            try
+            {
+                await _extraService.DeleteExtra(extraId);
+                return ApiResponse.Create("Extra delete successfully.", StatusCodes.Status200OK, extraId);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to delete extra.", StatusCodes.Status400BadRequest, ex);
+            }
+        }
     }
 }

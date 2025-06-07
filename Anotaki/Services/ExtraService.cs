@@ -11,6 +11,12 @@ namespace anotaki_api.Services
 
         private readonly AppDbContext _context = context;
 
+        public async Task<Extra?> FindById(int extraId)
+        {
+            var extra = await _context.Extras.FirstOrDefaultAsync(e => e.Id == extraId);
+            return extra;
+        }
+
         public async Task<List<Extra>> GetAllExtras()
         {
             return await _context.Extras.ToListAsync();
@@ -58,6 +64,32 @@ namespace anotaki_api.Services
                 .ToListAsync();
 
             return extras;
+        }
+
+        public async Task DeleteExtra(int extraId)
+        {
+            Extra? extra = await FindById(extraId);
+            if (extra == null)
+                throw new Exception("Extra not found");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var related = await _context.ProductExtras
+                    .Where(pe => pe.ExtraId == extraId)
+                    .ToListAsync();
+
+                _context.ProductExtras.RemoveRange(related);
+                _context.Extras.Remove(extra);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }
