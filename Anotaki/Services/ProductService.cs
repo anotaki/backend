@@ -15,7 +15,7 @@ namespace anotaki_api.Services
             return await _context.Products.Include(x => x.Extras).ToListAsync();
         }
 
-        public async Task<Product> CreateProduct(ProductRequestDTO dto)
+        public async Task<Product> CreateProduct(CreateProductRequestDTO dto)
         {
 
             var newProduct = new Product

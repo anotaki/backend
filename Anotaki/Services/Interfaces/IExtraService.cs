@@ -5,7 +5,8 @@ namespace anotaki_api.Services.Interfaces
 {
     public interface IExtraService
     {
-        Task<Extra> CreateExtra(ExtraRequestDTO dto, int productId);
+        Task<Extra> CreateExtra(CreateExtraRequestDTO dto, int productId);
         Task<List<Extra>> GetAllExtras();
+        Task<List<Extra>> GetAllExtrasByProductId(int productId);
     }
 }

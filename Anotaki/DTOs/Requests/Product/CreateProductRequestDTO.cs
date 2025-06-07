@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace anotaki_api.DTOs.Requests.Product
 {
-    public class ProductRequestDTO
+    public class CreateProductRequestDTO
     {
         public string Name { get; set; }
         

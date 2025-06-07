@@ -15,7 +15,7 @@ namespace anotaki_api.Controllers
         private readonly IProductService _productService = productService;
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(ProductRequestDTO dto)
+        public async Task<IActionResult> CreateProduct(CreateProductRequestDTO dto)
         {
             try
             {

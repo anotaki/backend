@@ -19,25 +19,41 @@ namespace anotaki_api.Controllers
             try
             {
                 var data = await _extraService.GetAllExtras();
-                return ApiResponse.Create("Getting all Extras", StatusCodes.Status200OK, data);
-            } catch (Exception ex)
+                return ApiResponse.Create("Extras retrieved successfully.", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
             {
-                return ApiResponse.Create("Failed to Get All Extras", StatusCodes.Status400BadRequest, ex);
+                return ApiResponse.Create("Failed to retrieve extras.", StatusCodes.Status400BadRequest, ex);
             }
         }
 
         [HttpPost]
         [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> CreateExtra([FromBody] ExtraRequestDTO dto, [FromQuery] int productId)
+        public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto, [FromQuery] int productId)
         {
             try
             {
                 var data = await _extraService.CreateExtra(dto, productId);
-                return ApiResponse.Create("Extra adicionado", StatusCodes.Status201Created, data);
+                return ApiResponse.Create("Extra created successfully.", StatusCodes.Status201Created, data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return ApiResponse.Create("Failed to create Extra", StatusCodes.Status400BadRequest, ex);
+                return ApiResponse.Create("Failed to create extra.", StatusCodes.Status400BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("get-by")]
+        public async Task<IActionResult> GetAllExtrasByProductId([FromQuery] int productId)
+        {
+            try
+            {
+                var data = await _extraService.GetAllExtrasByProductId(productId);
+                return ApiResponse.Create("Extras retrieved by product successfully.", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to retrieve extras by product.", StatusCodes.Status400BadRequest, ex);
             }
         }
     }

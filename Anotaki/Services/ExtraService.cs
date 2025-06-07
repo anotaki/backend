@@ -3,7 +3,6 @@ using anotaki_api.DTOs.Requests.Extra;
 using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Transactions;
 
 namespace anotaki_api.Services
 {
@@ -17,7 +16,7 @@ namespace anotaki_api.Services
             return await _context.Extras.ToListAsync();
         }
 
-        public async Task<Extra> CreateExtra(ExtraRequestDTO dto, int productId)
+        public async Task<Extra> CreateExtra(CreateExtraRequestDTO dto, int productId)
         {
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -49,6 +48,16 @@ namespace anotaki_api.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<List<Extra>> GetAllExtrasByProductId(int productId)
+        {
+            List<Extra> extras = await _context.ProductExtras
+                .Where(pe => pe.ProductId == productId)
+                .Select(pe => pe.Extra)
+                .ToListAsync();
+
+            return extras;
         }
     }
 }
