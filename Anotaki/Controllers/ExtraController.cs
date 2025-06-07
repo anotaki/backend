@@ -29,11 +29,11 @@ namespace anotaki_api.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto, [FromQuery] int productId)
+        public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto)
         {
             try
             {
-                var data = await _extraService.CreateExtra(dto, productId);
+                var data = await _extraService.CreateExtra(dto);
                 return ApiResponse.Create("Extra created successfully.", StatusCodes.Status201Created, data);
             }
             catch (Exception ex)
@@ -42,18 +42,45 @@ namespace anotaki_api.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("get-by")]
-        public async Task<IActionResult> GetAllExtrasByProductId([FromQuery] int productId)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteExtra([FromQuery] int extraId)
         {
             try
             {
-                var data = await _extraService.GetAllExtrasByProductId(productId);
-                return ApiResponse.Create("Extras retrieved by product successfully.", StatusCodes.Status200OK, data);
+                await _extraService.DeleteExtra(extraId);
+                return ApiResponse.Create("Extra delete successfully.", StatusCodes.Status200OK, extraId);
             }
             catch (Exception ex)
             {
-                return ApiResponse.Create("Failed to retrieve extras by product.", StatusCodes.Status400BadRequest, ex);
+                return ApiResponse.Create("Failed to delete extra.", StatusCodes.Status400BadRequest, ex);
+            }
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateExtra([FromBody] Extra extra)
+        {
+            try
+            {
+                var data = await _extraService.UpdateExtra(extra);
+                return ApiResponse.Create("Extra Updated", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to update extra.", StatusCodes.Status400BadRequest, ex);
+            }
+        }
+
+        [HttpPost]
+        [Route("add-to-product/{productId}")]
+        public async Task<IActionResult> AddMultipleExtrasToProduct([FromRoute] int productId, [FromBody] List<int> extraIds)
+        {
+            try
+            {
+                var data = await _extraService.AddMultipleExtrasToProduct(productId, extraIds);
+                return ApiResponse.Create("Add Multiple Extras to Product", StatusCodes.Status200OK, data);
+            } catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to add.", StatusCodes.Status400BadRequest, ex);
             }
         }
     }
