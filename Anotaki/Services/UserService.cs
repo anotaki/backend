@@ -27,7 +27,7 @@ namespace anotaki_api.Services
             return await _context.Users.Include(x=>x.Addresses).FirstOrDefaultAsync(x => x.Cpf == cpf);
         }
 
-        public async Task<User> CreateUser(CreateUserRequestDTO userDTO)
+        public async Task<User> CreateUser(CreateUserDTO userDTO)
         {
             var newUser = new User
             {
@@ -54,7 +54,7 @@ namespace anotaki_api.Services
             return newUser;
         }
 
-        public async Task<User> UpdateUser(UpdateUserRequestDTO dto, User user)
+        public async Task<User> UpdateUser(UpdateUserDTO dto, User user)
         {
             if (!string.IsNullOrWhiteSpace(dto.Name))
                 user.Name = dto.Name;

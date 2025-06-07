@@ -1,4 +1,4 @@
-﻿namespace anotaki_api.DTOs.Response.User
+﻿namespace anotaki_api.DTOs.Response.Address
 {
     public class AddressResponseDTO
     {
@@ -12,5 +12,4 @@
         public string Complement { get; set; }
         public bool IsStandard { get; set; }
     }
-
 }

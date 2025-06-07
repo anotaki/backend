@@ -2,7 +2,7 @@
 
 namespace anotaki_api.DTOs.Requests.Address
 {
-    public class UpdateAddressRequestDTO
+    public class UpdateAddressDTO
     {
         public string? City { get; set; }
         public string? State { get; set; }

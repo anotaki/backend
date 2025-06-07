@@ -11,7 +11,7 @@ namespace anotaki_api.Services
 
         private readonly AppDbContext _context = context;
 
-        public async Task<Address> CreateAddress(User user, CreateAddressRequestDTO addressDTO)
+        public async Task<Address> CreateAddress(User user, CreateAddressDTO addressDTO)
         {
 
             bool isFirstAddress = user.Addresses.Count == 0;
@@ -45,7 +45,7 @@ namespace anotaki_api.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Address> UpdateUserAddress(int id, UpdateAddressRequestDTO dto, User user)
+        public async Task<Address> UpdateUserAddress(int id, UpdateAddressDTO dto, User user)
         {
             var address = _context.Addresses.Find(id);
             if (address is null)
