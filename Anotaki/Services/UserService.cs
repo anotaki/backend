@@ -5,12 +5,26 @@ using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace anotaki_api.Services
 {
     public class UserService(AppDbContext context) : IUserService
     {
         private readonly AppDbContext _context = context;
+
+        public async Task<User?> GetContextUser(ClaimsPrincipal user)
+        {
+            var idClaim = user.FindFirst(ClaimTypes.NameIdentifier) ?? user.FindFirst("sub");
+            if (idClaim == null || !int.TryParse(idClaim.Value, out var userId))
+            {
+                return null;
+            }
+
+            var userDb = await FindById(userId);
+
+            return userDb;
+        }
 
         public async Task<User?> FindById(int id)
         {

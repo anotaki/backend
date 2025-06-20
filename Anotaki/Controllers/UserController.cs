@@ -1,12 +1,10 @@
 using anotaki_api.DTOs.Requests.User;
 using anotaki_api.DTOs.Response.Api;
 using anotaki_api.DTOs.Response.User;
-using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static anotaki_api.Utils.ClaimUtils;
 
 namespace anotaki_api.Controllers
 {
@@ -37,17 +35,9 @@ namespace anotaki_api.Controllers
         [HttpPatch]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO dto)
         {
-            var userId = ClaimUtils.GetUserId(User);
-            if (userId == null)
-            {
-                return ApiResponse.Create("User not Authenticated.", StatusCodes.Status401Unauthorized);
-            }
-
-            var user = await _userService.FindById(userId.Value);
+            var user = await _userService.GetContextUser(User);
             if (user == null)
-            {
-                return ApiResponse.Create("User not Found.", StatusCodes.Status404NotFound);
-            }
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
             try
             {

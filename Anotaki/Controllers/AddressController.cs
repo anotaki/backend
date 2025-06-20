@@ -1,5 +1,4 @@
 ﻿using anotaki_api.DTOs.Requests.Address;
-using anotaki_api.DTOs.Response.Address;
 using anotaki_api.DTOs.Response.Api;
 using anotaki_api.Services.Interfaces;
 using anotaki_api.Utils;
@@ -14,39 +13,21 @@ namespace anotaki_api.Controllers
     [Authorize]
     public class AddressController(IUserService userService, IAddressService addressService) : ControllerBase
     {
-
         private readonly IUserService _userService = userService;
         private readonly IAddressService _addressService = addressService;
-
 
         [HttpPost]
         public async Task<IActionResult> CreateAddress(CreateAddressDTO addressDTO)
         {
-            var userId = ClaimUtils.GetUserId(User);
-            if (userId == null)
-                return Unauthorized(new { message = "User not authenticated." });
-
-
-            var user = await _userService.FindById(userId.Value);
+            var user = await _userService.GetContextUser(User);
             if (user == null)
-                return NotFound(new { message = "User not found." });
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
             try
             {
                 var createdAddress = await _addressService.CreateAddress(user, addressDTO);
 
-                var data = new AddressResponseDTO
-                {
-                    Street = createdAddress.Street,
-                    Number = createdAddress.Number,
-                    City = createdAddress.City,
-                    ZipCode = createdAddress.ZipCode,
-                    Neighborhood = createdAddress.Neighborhood,
-                    Complement = createdAddress.Complement ?? string.Empty,
-                    IsStandard = createdAddress.IsStandard
-                };
-
-                return ApiResponse.Create("Address saved!", StatusCodes.Status200OK, data);
+                return ApiResponse.Create("Address saved!", StatusCodes.Status200OK, createdAddress);
             }
             catch (DbUpdateException ex)
             {
@@ -57,16 +38,9 @@ namespace anotaki_api.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateAddress([FromRoute] int id, [FromBody] UpdateAddressDTO addressDTO)
         {
-            var userId = ClaimUtils.GetUserId(User);
-            if (userId == null)
-                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-
-
-            var user = await _userService.FindById(userId.Value);
+            var user = await _userService.GetContextUser(User);
             if (user == null)
-
                 return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
 
             var address = user.Addresses.FirstOrDefault(a => a.Id == id);
             if (address == null)
@@ -75,18 +49,8 @@ namespace anotaki_api.Controllers
             try
             {
                 var updatedAddress = await _addressService.UpdateUserAddress(id, addressDTO, user);
-                var data = new AddressResponseDTO
-                {
-                    Street = updatedAddress.Street,
-                    Number = updatedAddress.Number,
-                    City = updatedAddress.City,
-                    ZipCode = updatedAddress.ZipCode,
-                    Neighborhood = updatedAddress.Neighborhood,
-                    Complement = updatedAddress.Complement ?? string.Empty,
-                    IsStandard = updatedAddress.IsStandard
-                };
 
-                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK, data);
+                return ApiResponse.Create("Address updated successfully.", StatusCodes.Status200OK, updatedAddress);
             }
             catch (Exception ex)
             {
@@ -97,11 +61,7 @@ namespace anotaki_api.Controllers
         [HttpPatch("set-standard/{id}")]
         public async Task<IActionResult> SetStandardAddress([FromQuery] bool flag, [FromRoute] int id)
         {
-            var userId = ClaimUtils.GetUserId(User);
-            if (userId == null)
-                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-
-            var user = await _userService.FindById(userId.Value);
+            var user = await _userService.GetContextUser(User);
             if (user == null)
                 return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
@@ -111,19 +71,9 @@ namespace anotaki_api.Controllers
 
             try
             {
-                var updatedAddress = await _addressService.SetStandardAddress(flag, id, userId.Value);
-                var data = new AddressResponseDTO
-                {
-                    Street = updatedAddress.Street,
-                    Number = updatedAddress.Number,
-                    City = updatedAddress.City,
-                    ZipCode = updatedAddress.ZipCode,
-                    Neighborhood = updatedAddress.Neighborhood,
-                    Complement = updatedAddress.Complement ?? string.Empty,
-                    IsStandard = updatedAddress.IsStandard
-                };
+                var updatedAddress = await _addressService.SetStandardAddress(flag, id, user.Id);
 
-                return ApiResponse.Create("Standard address updated successfully.", StatusCodes.Status200OK, data);
+                return ApiResponse.Create("Standard address updated successfully.", StatusCodes.Status200OK, updatedAddress);
             }
             catch (Exception ex)
             {
@@ -134,11 +84,7 @@ namespace anotaki_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserAddress([FromRoute] int id)
         {
-            var userId = ClaimUtils.GetUserId(User);
-            if (userId == null)
-                return ApiResponse.Create("User not authenticated.", StatusCodes.Status401Unauthorized);
-
-            var user = await _userService.FindById(userId.Value);
+            var user = await _userService.GetContextUser(User);
             if (user == null)
                 return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
