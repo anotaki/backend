@@ -18,11 +18,6 @@ obj/
 # Rider settings (caso use JetBrains)
 .idea/
 
-# Docker
-**/docker-compose.override.yml
-**/docker-compose.*.yml
-**/.docker/
-
 # IIS Express
 .vs/
 *.vspscc
@@ -32,19 +27,14 @@ obj/
 # Logs
 *.log
 
-# npm / node
-node_modules/
-npm-debug.log
-yarn-error.log
-
 # Publish output
 publish/
 *.publish.xml
 
 # Configuration transform files
-*.Development.config
-*.Production.config
-*.Staging.config
+# *.Development.config
+# *.Production.config
+# *.Staging.config
 
 # Environment files
 .env
@@ -53,6 +43,3 @@ publish/
 # MacOS/Linux/Windows crap
 .DS_Store
 Thumbs.db
-
-# Optional: Ignore generated migrations (se você quiser controlar manualmente)
-# Migrations/
