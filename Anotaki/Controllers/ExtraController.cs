@@ -8,102 +8,103 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace anotaki_api.Controllers
 {
-    [Route("api/v1/extra")]
-    [ApiController]
-    public class ExtraController(IExtraService extraService, IUserService userService) : ControllerBase
-    {
-        private readonly IExtraService _extraService = extraService;
-        private readonly IUserService _userService = userService;
+	[Route("api/v1/extra")]
+	[ApiController]
+	public class ExtraController(IExtraService extraService, IUserService userService) : ControllerBase
+	{
+		private readonly IExtraService _extraService = extraService;
+		private readonly IUserService _userService = userService;
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllExtras()
-        {
-            try
-            {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+		[HttpGet]
+		public async Task<IActionResult> GetAllExtras()
+		{
+			try
+			{
+				var user = await _userService.GetContextUser(User);
+				if (user == null)
+					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
-                var data = await _extraService.GetAllExtras();
-                return ApiResponse.Create("Extras retrieved successfully.", StatusCodes.Status200OK, data);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to retrieve extras.", StatusCodes.Status400BadRequest, ex);
-            }
-        }
+				var data = await _extraService.GetAllExtras();
+				return ApiResponse.Create("Extras retrieved successfully.", StatusCodes.Status200OK, data);
+			}
+			catch (Exception ex)
+			{
+				return ApiResponse.Create("Failed to retrieve extras.", StatusCodes.Status400BadRequest, ex);
+			}
+		}
 
-        [HttpPost]
-        [Authorize(Roles = Roles.Admin)]
-        public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto)
-        {
-            try
-            {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+		[HttpPost]
+		[Authorize(Roles = Roles.Admin)]
+		public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto)
+		{
+			try
+			{
+				var user = await _userService.GetContextUser(User);
+				if (user == null)
+					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
-                var data = await _extraService.CreateExtra(dto);
-                return ApiResponse.Create("Extra created successfully.", StatusCodes.Status201Created, data);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to create extra.", StatusCodes.Status400BadRequest, ex);
-            }
-        }
+				var data = await _extraService.CreateExtra(dto);
+				return ApiResponse.Create("Extra created successfully.", StatusCodes.Status201Created, data);
+			}
+			catch (Exception ex)
+			{
+				return ApiResponse.Create("Failed to create extra.", StatusCodes.Status400BadRequest, ex);
+			}
+		}
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteExtra([FromQuery] int extraId)
-        {
-            try
-            {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+		[HttpDelete]
+		public async Task<IActionResult> DeleteExtra([FromQuery] int extraId)
+		{
+			try
+			{
+				var user = await _userService.GetContextUser(User);
+				if (user == null)
+					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
-                await _extraService.DeleteExtra(extraId);
-                return ApiResponse.Create("Extra delete successfully.", StatusCodes.Status200OK, extraId);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to delete extra.", StatusCodes.Status400BadRequest, ex);
-            }
-        }
+				await _extraService.DeleteExtra(extraId);
+				return ApiResponse.Create("Extra delete successfully.", StatusCodes.Status200OK, extraId);
+			}
+			catch (Exception ex)
+			{
+				return ApiResponse.Create("Failed to delete extra.", StatusCodes.Status400BadRequest, ex);
+			}
+		}
 
-        [HttpPatch]
-        public async Task<IActionResult> UpdateExtra([FromBody] Extra extra)
-        {
-            try
-            {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+		[HttpPatch]
+		public async Task<IActionResult> UpdateExtra([FromBody] Extra extra)
+		{
+			try
+			{
+				var user = await _userService.GetContextUser(User);
+				if (user == null)
+					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
-                var data = await _extraService.UpdateExtra(extra);
-                return ApiResponse.Create("Extra Updated", StatusCodes.Status200OK, data);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to update extra.", StatusCodes.Status400BadRequest, ex);
-            }
-        }
+				var data = await _extraService.UpdateExtra(extra);
+				return ApiResponse.Create("Extra Updated", StatusCodes.Status200OK, data);
+			}
+			catch (Exception ex)
+			{
+				return ApiResponse.Create("Failed to update extra.", StatusCodes.Status400BadRequest, ex);
+			}
+		}
 
-        [HttpPost]
-        [Route("add-to-product/{productId}")]
-        public async Task<IActionResult> AddMultipleExtrasToProduct([FromRoute] int productId, [FromBody] List<int> extraIds)
-        {
-            try
-            {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+		[HttpPost]
+		[Route("add-to-product/{productId}")]
+		public async Task<IActionResult> AddMultipleExtrasToProduct([FromRoute] int productId, [FromBody] List<int> extraIds)
+		{
+			try
+			{
+				var user = await _userService.GetContextUser(User);
+				if (user == null)
+					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
-                var data = await _extraService.AddMultipleExtrasToProduct(productId, extraIds);
-                return ApiResponse.Create("Add Multiple Extras to Product", StatusCodes.Status200OK, data);
-            } catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to add.", StatusCodes.Status400BadRequest, ex);
-            }
-        }
-    }
+				var data = await _extraService.AddMultipleExtrasToProduct(productId, extraIds);
+				return ApiResponse.Create("Add Multiple Extras to Product", StatusCodes.Status200OK, data);
+			}
+			catch (Exception ex)
+			{
+				return ApiResponse.Create("Failed to add.", StatusCodes.Status400BadRequest, ex);
+			}
+		}
+	}
 }
