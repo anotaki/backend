@@ -1,7 +1,6 @@
 ﻿using anotaki_api.DTOs.Requests.Extra;
 using anotaki_api.DTOs.Response.Api;
 using anotaki_api.Models;
-using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +9,14 @@ namespace anotaki_api.Controllers
 {
 	[Route("api/v1/extra")]
 	[ApiController]
+	[Authorize(Roles = Roles.Admin)]
 	public class ExtraController(IExtraService extraService, IUserService userService) : ControllerBase
 	{
 		private readonly IExtraService _extraService = extraService;
 		private readonly IUserService _userService = userService;
 
 		[HttpGet]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetAllExtras()
 		{
 			try
@@ -34,7 +35,6 @@ namespace anotaki_api.Controllers
 		}
 
 		[HttpPost]
-		[Authorize(Roles = Roles.Admin)]
 		public async Task<IActionResult> CreateExtra([FromBody] CreateExtraRequestDTO dto)
 		{
 			try

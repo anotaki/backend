@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using anotaki_api.Data;
 using anotaki_api.Exceptions;
 using anotaki_api.Hubs;
@@ -8,9 +10,7 @@ using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +25,7 @@ builder
 // SignalR
 builder.Services.AddSignalR();
 
-// GlobalExceptionHandler 
+// GlobalExceptionHandler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -49,31 +49,42 @@ builder
 	.AddJwtBearer(o =>
 	{
 		o.RequireHttpsMetadata = false;
+
 		o.TokenValidationParameters = new TokenValidationParameters
 		{
+			RoleClaimType = ClaimTypes.Role, // equivale à URI longa
+
+			NameClaimType = ClaimTypes.NameIdentifier, // corresponde ao "sub"
+
 			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)),
+
+			ValidateIssuer = true,
 			ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+			ValidateAudience = true,
 			ValidAudience = builder.Configuration["Jwt:Audience"],
+
+			ValidateLifetime = true,
 			ClockSkew = TimeSpan.Zero,
 		};
 
-        // ESSENCIAL para habilitar JWT no SignalR
-        o.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
+		// habilitar JWT no SignalR
+		o.Events = new JwtBearerEvents
+		{
+			OnMessageReceived = context =>
+			{
+				var accessToken = context.Request.Query["access_token"];
+				var path = context.HttpContext.Request.Path;
 
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/orderHub"))
-                {
-                    context.Token = accessToken;
-                }
+				if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/orderHub"))
+				{
+					context.Token = accessToken;
+				}
 
-                return Task.CompletedTask;
-            }
-        };
-    });
+				return Task.CompletedTask;
+			},
+		};
+	});
 
 var app = builder.Build();
 
