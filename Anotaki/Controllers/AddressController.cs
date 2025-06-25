@@ -34,7 +34,7 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPatch("{id}")]
+		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateAddress([FromRoute] int id, [FromBody] UpdateAddressDTO addressDTO)
 		{
 			var user = await _userService.GetContextUser(User);

@@ -68,7 +68,7 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPatch("{id}")]
+		[HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory([FromRoute] int id,[FromQuery] string name)
 		{
 			try

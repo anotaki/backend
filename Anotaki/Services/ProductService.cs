@@ -18,12 +18,12 @@ namespace anotaki_api.Services
 
         public async Task<Product> CreateProduct(CreateProductRequestDTO dto)
         {
-
             var newProduct = new Product
             {
                 Name = dto.Name,
                 Price = dto.Price,
                 Description = dto.Description,
+                CreatedAt = DateTime.UtcNow,
                 ImageUrl = dto.ImageUrl,
             }; 
 

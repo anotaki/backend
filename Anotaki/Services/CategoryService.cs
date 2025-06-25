@@ -1,6 +1,4 @@
 ﻿using anotaki_api.Data;
-using anotaki_api.DTOs.Requests.Address;
-using anotaki_api.DTOs.Response;
 using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;

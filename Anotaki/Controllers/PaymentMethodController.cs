@@ -69,7 +69,7 @@ namespace anotaki_api.Controllers
             }
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePaymentMethod([FromRoute] int id, [FromQuery] string name)
         {
             try

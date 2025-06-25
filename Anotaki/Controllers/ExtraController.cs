@@ -52,8 +52,8 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpDelete]
-		public async Task<IActionResult> DeleteExtra([FromQuery] int extraId)
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteExtra([FromRoute] int extraId)
 		{
 			try
 			{

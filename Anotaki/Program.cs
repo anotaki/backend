@@ -88,6 +88,17 @@ builder
 
 var app = builder.Build();
 
+// Cria um escopo para usar o serviço de DbContext
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+
+    // Aplica as migrations e realiza o seed dos dados
+    context.Database.Migrate(); // garante que as migrations estão aplicadas
+    await DataSeeder.SeedInitialDataAsync(context);
+}
+
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
