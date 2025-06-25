@@ -15,7 +15,27 @@ namespace anotaki_api.Controllers
 		private readonly IProductService _productService = productService;
 		private readonly IUserService _userService = userService;
 
-		[HttpPost]
+        [HttpGet("menu")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllProductsByCategory()
+        {
+            try
+            {
+                var user = await _userService.GetContextUser(User);
+                if (user == null)
+                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+                var data = await _productService.ProductsFilterByCategory();
+                return ApiResponse.Create("Getting menu", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get menu", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        [HttpPost]
 		public async Task<IActionResult> CreateProduct(CreateProductRequestDTO dto)
 		{
 			try
@@ -50,25 +70,6 @@ namespace anotaki_api.Controllers
 				return ApiResponse.Create("Failed to Get All Products", StatusCodes.Status500InternalServerError, ex.Message);
 			}
 		}
-
-        [HttpGet("menu")]
-		[AllowAnonymous]
-        public async Task<IActionResult> GetAllProductsByCategory()
-        {
-            try
-            {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-                var data = await _productService.ProductsFilterByCategory();
-                return ApiResponse.Create("Getting menu", StatusCodes.Status200OK, data);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Create("Failed to Get menu", StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
 
         [HttpPut]
 		public async Task<IActionResult> UpdateProduct([FromBody] Product product)
