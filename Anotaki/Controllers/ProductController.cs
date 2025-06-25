@@ -52,6 +52,7 @@ namespace anotaki_api.Controllers
 		}
 
         [HttpGet("menu")]
+		[AllowAnonymous]
         public async Task<IActionResult> GetAllProductsByCategory()
         {
             try
