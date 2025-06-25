@@ -1,5 +1,6 @@
 ﻿using anotaki_api.Data;
 using anotaki_api.DTOs.Requests.Product;
+using anotaki_api.DTOs.Response;
 using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,17 @@ namespace anotaki_api.Services
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ProductsByCategory>> ProductsFilterByCategory()
+        {
+            var categories = await _context.Categories.Include(c => c.Products).Where(c => c.Products.Count > 0).ToListAsync();
+
+            return [.. categories.Select(c => new ProductsByCategory
+            {
+                Name = c.Name,
+                Products = c.Products,
+            })];
         }
     }
 }

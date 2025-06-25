@@ -51,7 +51,25 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPut]
+        [HttpGet("menu")]
+        public async Task<IActionResult> GetAllProductsByCategory()
+        {
+            try
+            {
+                var user = await _userService.GetContextUser(User);
+                if (user == null)
+                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+                var data = await _productService.ProductsFilterByCategory();
+                return ApiResponse.Create("Getting menu", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get menu", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut]
 		public async Task<IActionResult> UpdateProduct([FromBody] Product product)
 		{
 			try

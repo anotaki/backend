@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace anotaki_api.Controllers
 {
 	[ApiController]
-	[Route("/api/v1/orders")]
+	[Route("/api/v1/order")]
 	[Authorize]
 	public class OrderController(IOrderService orderService, IUserService userService) : ControllerBase
 	{
