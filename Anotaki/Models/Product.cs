@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace anotaki_api.Models
 {
@@ -20,6 +21,7 @@ namespace anotaki_api.Models
 		public List<ProductExtra> Extras { get; set; } = [];
 
 		public int? CategoryId { get; set; }
+		[JsonIgnore]
 		public Category? Category { get; set; }
 
 		public DateTime CreatedAt { get; set; }

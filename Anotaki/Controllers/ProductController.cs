@@ -21,19 +21,14 @@ namespace anotaki_api.Controllers
         {
             try
             {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
                 var data = await _productService.ProductsFilterByCategory();
-                return ApiResponse.Create("Getting menu", StatusCodes.Status200OK, data);
+                return ApiResponse.Create("Success getting the menu", StatusCodes.Status200OK, data);
             }
             catch (Exception ex)
             {
-                return ApiResponse.Create("Failed to Get menu", StatusCodes.Status500InternalServerError, ex.Message);
+                return ApiResponse.Create("Failed to get menu", StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
 
         [HttpPost]
 		public async Task<IActionResult> CreateProduct(CreateProductRequestDTO dto)

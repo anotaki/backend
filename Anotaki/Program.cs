@@ -88,14 +88,18 @@ builder
 
 var app = builder.Build();
 
-// Cria um escopo para usar o serviço de DbContext
+app.UseCors(x => x.AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .SetIsOriginAllowed(origin => true)
+                  .AllowCredentials()
+                  .WithExposedHeaders("Content-Disposition"));
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AppDbContext>();
 
-    // Aplica as migrations e realiza o seed dos dados
-    context.Database.Migrate(); // garante que as migrations estão aplicadas
+    context.Database.Migrate();
     await DataSeeder.SeedInitialDataAsync(context);
 }
 
