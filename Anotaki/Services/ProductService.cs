@@ -62,7 +62,12 @@ namespace anotaki_api.Services
 
         public async Task<List<ProductsByCategory>> ProductsFilterByCategory()
         {
-            var categories = await _context.Categories.Include(c => c.Products).Where(c => c.Products.Count > 0).ToListAsync();
+            var categories = await _context.Categories
+                .Include(c => c.Products)
+                    .ThenInclude(p => p.Extras)
+                        .ThenInclude(pe => pe.Extra)
+                .Where(c => c.Products.Count > 0)
+                .ToListAsync();
 
             return [.. categories.Select(c => new ProductsByCategory
             {
