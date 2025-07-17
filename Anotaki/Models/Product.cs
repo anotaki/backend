@@ -21,7 +21,6 @@ namespace anotaki_api.Models
 		public List<ProductExtra> Extras { get; set; } = [];
 
 		public int? CategoryId { get; set; }
-		[JsonIgnore]
 		public Category? Category { get; set; }
 
 		public DateTime CreatedAt { get; set; }

@@ -1,4 +1,5 @@
-﻿using anotaki_api.DTOs.Requests.Product;
+﻿using anotaki_api.DTOs.Requests.Api;
+using anotaki_api.DTOs.Requests.Product;
 using anotaki_api.DTOs.Response.Api;
 using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace anotaki_api.Controllers
 {
 	[Route("api/v1/product")]
-	[Authorize(Roles = Roles.Admin)]
+	//[Authorize(Roles = Roles.Admin)]
 	[ApiController]
 	public class ProductController(IProductService productService, IUserService userService) : ControllerBase
 	{
@@ -65,6 +66,24 @@ namespace anotaki_api.Controllers
 				return ApiResponse.Create("Failed to Get All Products", StatusCodes.Status500InternalServerError, ex.Message);
 			}
 		}
+
+        [HttpPost("paginated")]
+        public async Task<IActionResult> GetPaginatedProducts([FromBody] PaginationParams paginationParams)
+        {
+            try
+            {
+                //var user = await _userService.GetContextUser(User);
+                //if (user == null)
+                //    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+                var data = await _productService.GetPaginatedProducts(paginationParams);
+                return ApiResponse.Create("Getting All Products", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get All Products", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         [HttpPut]
 		public async Task<IActionResult> UpdateProduct([FromBody] Product product)
