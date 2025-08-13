@@ -1,9 +1,10 @@
-﻿using System.Security.Claims;
-using System.Text;
-using anotaki_api.Models;
+﻿using anotaki_api.Models;
 using anotaki_api.Services.Interfaces;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace anotaki_api.Services
 {
@@ -36,5 +37,10 @@ namespace anotaki_api.Services
 
 			return token;
 		}
+
+        public string CreateRefreshToken()
+		{
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        }
 	}
 }

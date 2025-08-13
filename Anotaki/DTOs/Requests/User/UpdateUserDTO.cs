@@ -4,12 +4,7 @@ namespace anotaki_api.DTOs.Requests.User
 {
     public class UpdateUserDTO
     {
-        [Required]
-        [MaxLength(100)]
-        public string Name { get; set; }
-
-        [Required]
-        [MaxLength(255)]
-        public string Password { get; set; }
+        public string? Name { get; set; }
+        public string? Password { get; set; }
     }
 }

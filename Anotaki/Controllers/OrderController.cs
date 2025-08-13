@@ -1,6 +1,8 @@
-﻿using anotaki_api.DTOs.Requests.Order;
+﻿using anotaki_api.DTOs.Requests.Api;
+using anotaki_api.DTOs.Requests.Order;
 using anotaki_api.DTOs.Response;
 using anotaki_api.DTOs.Response.Api;
+using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +17,21 @@ namespace anotaki_api.Controllers
 		private readonly IOrderService _orderService = orderService;
 		private readonly IUserService _userService = userService;
 
-		[HttpGet("cart")]
+        [HttpPost("paginated")]
+        public async Task<IActionResult> GetPaginatedOrders([FromBody] PaginationParams paginationParams)
+        {
+            try
+            {
+                var data = await _orderService.GetPaginatedOrders(paginationParams);
+                return ApiResponse.Create("Getting All Orders", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get All Orders", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("cart")]
 		public async Task<IActionResult> GetCart()
 		{
 			var user = await _userService.GetContextUser(User);
@@ -42,8 +58,8 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPost("cart/{cartId}")]
-		public async Task<IActionResult> AddProductToCart([FromRoute] int cartId, [FromBody] AddProductToOrderDTO dto)
+		[HttpPost("cart")]
+		public async Task<IActionResult> AddProductToCart([FromBody] AddProductToOrderDTO dto)
 		{
 			var user = await _userService.GetContextUser(User);
 			if (user == null)
@@ -63,8 +79,8 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPost("checkout-order/{orderId}")]
-		public async Task<IActionResult> CheckoutOrder([FromRoute] int orderId, [FromBody] CheckoutOrderDTO dto)
+		[HttpPost("checkout-order")]
+		public async Task<IActionResult> CheckoutOrder([FromBody] CheckoutOrderDTO dto)
 		{
 			var user = await _userService.GetContextUser(User);
 			if (user == null)
@@ -77,7 +93,7 @@ namespace anotaki_api.Controllers
 				if (cart.UserId != user.Id)
 					return ApiResponse.Create("Order not belong to that user.", StatusCodes.Status404NotFound);
 
-				await _orderService.CheckoutOrder(cart, dto);
+				await _orderService.CheckoutOrder(cart, dto, user.Id);
 
 				return ApiResponse.Create($"Order processed sucessfully.", StatusCodes.Status201Created);
 			}
@@ -86,5 +102,52 @@ namespace anotaki_api.Controllers
 				return ApiResponse.Create("Failed ordering.", StatusCodes.Status400BadRequest, ex.Message);
 			}
 		}
-	}
+
+        [HttpPatch("change-status/{id}")]
+        public async Task<IActionResult> ChangeOrderStatus([FromRoute] int id, [FromQuery] int orderStatus)
+        {
+			//var user = await _userService.GetContextUser(User);
+			//if (user == null)
+			//	return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+			try
+            {
+                var order = await _orderService.ChangeOrderStatus(id, orderStatus, 1);
+                return ApiResponse.Create("Order Details", StatusCodes.Status200OK, order);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get Order Details", StatusCodes.Status400BadRequest, ex.Message);
+            }
+        }
+
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> GetOrder([FromRoute] int id)
+        {
+            try
+            {
+                var order = await _orderService.GetOrderDetails(id);
+                return ApiResponse.Create("Order Details", StatusCodes.Status200OK, order);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get Order Details", StatusCodes.Status400BadRequest, ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder([FromRoute] int id)
+        {
+            try
+            {
+                await _orderService.DeleteOrder(id);
+                return ApiResponse.Create("Order Deleted", StatusCodes.Status200OK, id);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Delete Order", StatusCodes.Status400BadRequest, ex.Message);
+            }
+        }
+    }
 }
+

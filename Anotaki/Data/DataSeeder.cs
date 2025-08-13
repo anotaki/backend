@@ -7,6 +7,12 @@ namespace anotaki_api.Data
     {
         public static async Task SeedInitialDataAsync(AppDbContext context)
         {
+            if (!context.Users.Any() || !context.Users.Any(u => u.Id == 1))
+            {
+                context.Users.AddRange(
+                    new User { Id = 1, Name = "System Admin", Email= "admin@admin.com", IsActive = true,  Password = "$2a$11$jzPPXyriPq0CeoSWxrlod.thTx/AX2ZTD0GDfQ4227gd0eNqW6/6q", Role = Role.Admin, Cpf = "00000000000",CreatedAt = DateTime.UtcNow }
+                );
+            }
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(
@@ -44,7 +50,6 @@ namespace anotaki_api.Data
                     Name = "Anotaki Frango",
                     Price = 199.90m,
                     Description = "2 salsichas, frango, alface, milho, batata palha e molho.",
-                    ImageUrl = "https://example.com/frango.jpg",
                     CategoryId = category?.Id,
                     CreatedAt = DateTime.UtcNow,
                     SalesCount = 5
@@ -55,7 +60,6 @@ namespace anotaki_api.Data
                     Name = "Anotaki Carne Seca",
                     Price = 49.99m,
                     Description = "2 salsichas, carne seca, alface, milho, batata palha e molho.",
-                    ImageUrl = "https://example.com/carne.jpg",
                     CategoryId = category?.Id,
                     CreatedAt = DateTime.UtcNow,
                     SalesCount = 10

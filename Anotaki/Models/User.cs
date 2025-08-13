@@ -21,6 +21,8 @@ namespace anotaki_api.Models
 		public List<Address> Addresses { get; set; } = [];
 
 		public bool IsActive { get; set; } = true;
+		public DateTime CreatedAt {  get; set; }
+		public int OrdersCount { get; set; }
 	}
 
 	public static class Roles

@@ -12,9 +12,14 @@ namespace anotaki_api.Hubs
         {
             var user = await _userService.GetContextUser(Context.User!);
 
-            if (user != null && user.Role == Role.Admin)
+            if (user != null)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, "Admins");
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{user.Id}");
+
+                if (user.Role == Role.Admin)
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, "Admins");
+                }
             }
 
             await base.OnConnectedAsync();
@@ -24,9 +29,14 @@ namespace anotaki_api.Hubs
         {
             var user = await _userService.GetContextUser(Context.User!);
 
-            if (user != null && user.Role == Role.Admin)
+            if (user != null)
             {
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Admins");
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user-{user.Id}");
+
+                if (user.Role == Role.Admin)
+                {
+                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Admins");
+                }
             }
 
             await base.OnDisconnectedAsync(exception);

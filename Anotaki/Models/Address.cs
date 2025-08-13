@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace anotaki_api.Models
 {
@@ -14,6 +15,7 @@ namespace anotaki_api.Models
         public string Number { get; set; }
         public string? Complement { get; set; }
         public int UserId { get; set; }
+        [JsonIgnore]
         public User User { get; set; }
         public bool IsStandard { get; set; }
     }

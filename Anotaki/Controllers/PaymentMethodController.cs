@@ -1,5 +1,8 @@
-﻿using anotaki_api.DTOs.Response.Api;
+﻿using anotaki_api.DTOs.Requests.Api;
+using anotaki_api.DTOs.Requests.PaymentMethod;
+using anotaki_api.DTOs.Response.Api;
 using anotaki_api.Models;
+using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +17,26 @@ namespace anotaki_api.Controllers
         private readonly IPaymentMethodService _paymentMethodService = paymentMethodService;
         private readonly IUserService _userService = userService;
 
+        [HttpPost("paginated")]
+        public async Task<IActionResult> GetPaginatedExtras([FromBody] PaginationParams paginationParams)
+        {
+            try
+            {
+                var data = await _paymentMethodService.GetPaginatedPaymentMethods(paginationParams);
+                return ApiResponse.Create("Getting All Extras", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get All Extras", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAllPaymentMethods()
         {
             try
             {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
                 var data = await _paymentMethodService.GetAllPaymentMethods();
                 return ApiResponse.Create("Payment methods retrieved successfully.", StatusCodes.Status200OK, data);
             }
@@ -34,15 +47,11 @@ namespace anotaki_api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePaymentMethod([FromQuery] string name)
+        public async Task<IActionResult> CreatePaymentMethod([FromBody] FormPaymentMethodRequestDto dto)
         {
             try
             {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-                var data = await _paymentMethodService.CreatePaymentMethod(name);
+                var data = await _paymentMethodService.CreatePaymentMethod(dto.Name);
                 return ApiResponse.Create("Payment method created successfully.", StatusCodes.Status201Created, data);
             }
             catch (Exception ex)
@@ -56,10 +65,6 @@ namespace anotaki_api.Controllers
         {
             try
             {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
                 await _paymentMethodService.DeletePaymentMethod(id);
                 return ApiResponse.Create("Payment method deleted successfully.", StatusCodes.Status200OK, id);
             }
@@ -70,15 +75,11 @@ namespace anotaki_api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePaymentMethod([FromRoute] int id, [FromQuery] string name)
+        public async Task<IActionResult> UpdatePaymentMethod([FromRoute] int id, [FromBody] FormPaymentMethodRequestDto dto)
         {
             try
             {
-                var user = await _userService.GetContextUser(User);
-                if (user == null)
-                    return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-                var data = await _paymentMethodService.UpdatePaymentMethod(name, id);
+                var data = await _paymentMethodService.UpdatePaymentMethod(dto.Name, id);
                 return ApiResponse.Create("Payment method updated successfully.", StatusCodes.Status200OK, data);
             }
             catch (Exception ex)

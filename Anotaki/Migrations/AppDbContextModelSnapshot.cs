@@ -98,6 +98,12 @@ namespace anotaki_api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -179,6 +185,39 @@ namespace anotaki_api.Migrations
                     b.ToTable("OrderExtraItems");
                 });
 
+            modelBuilder.Entity("anotaki_api.Models.OrderLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OrderLogs");
+                });
+
             modelBuilder.Entity("anotaki_api.Models.OrderProductItem", b =>
                 {
                     b.Property<int>("Id")
@@ -252,9 +291,14 @@ namespace anotaki_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
+                    b.Property<byte[]>("ImageData")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ImageMimeType")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -296,6 +340,76 @@ namespace anotaki_api.Migrations
                     b.ToTable("ProductExtras");
                 });
 
+            modelBuilder.Entity("anotaki_api.Models.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("anotaki_api.Models.StoreSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Complement")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Neighborhood")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StoreSettings");
+                });
+
             modelBuilder.Entity("anotaki_api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -308,6 +422,9 @@ namespace anotaki_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -318,6 +435,9 @@ namespace anotaki_api.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("OrdersCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -335,6 +455,37 @@ namespace anotaki_api.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("anotaki_api.Models.WorkingHours", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<TimeOnly?>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<bool>("IsOpen")
+                        .HasColumnType("boolean");
+
+                    b.Property<TimeOnly?>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<int>("StoreSettingsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreSettingsId");
+
+                    b.ToTable("WorkingHours");
                 });
 
             modelBuilder.Entity("anotaki_api.Models.Address", b =>
@@ -390,6 +541,25 @@ namespace anotaki_api.Migrations
                     b.Navigation("OrderProductItem");
                 });
 
+            modelBuilder.Entity("anotaki_api.Models.OrderLog", b =>
+                {
+                    b.HasOne("anotaki_api.Models.Order", "Order")
+                        .WithMany("Logs")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("anotaki_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("anotaki_api.Models.OrderProductItem", b =>
                 {
                     b.HasOne("anotaki_api.Models.Order", "Order")
@@ -437,6 +607,28 @@ namespace anotaki_api.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("anotaki_api.Models.RefreshToken", b =>
+                {
+                    b.HasOne("anotaki_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("anotaki_api.Models.WorkingHours", b =>
+                {
+                    b.HasOne("anotaki_api.Models.StoreSettings", "StoreSettings")
+                        .WithMany("WorkingHours")
+                        .HasForeignKey("StoreSettingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StoreSettings");
+                });
+
             modelBuilder.Entity("anotaki_api.Models.Category", b =>
                 {
                     b.Navigation("Products");
@@ -445,6 +637,8 @@ namespace anotaki_api.Migrations
             modelBuilder.Entity("anotaki_api.Models.Order", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("Logs");
                 });
 
             modelBuilder.Entity("anotaki_api.Models.OrderProductItem", b =>
@@ -455,6 +649,11 @@ namespace anotaki_api.Migrations
             modelBuilder.Entity("anotaki_api.Models.Product", b =>
                 {
                     b.Navigation("Extras");
+                });
+
+            modelBuilder.Entity("anotaki_api.Models.StoreSettings", b =>
+                {
+                    b.Navigation("WorkingHours");
                 });
 
             modelBuilder.Entity("anotaki_api.Models.User", b =>

@@ -1,6 +1,8 @@
 ﻿using anotaki_api.Hubs;
 using anotaki_api.Models;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -11,15 +13,17 @@ namespace anotaki_api.Queues.Consumers
     public class OrderConsumer : BackgroundService
     {
         private readonly IConfiguration _config;
+        private readonly JsonSerializerOptions _jsonOptions;
         private IConnection? _connection;
         private IChannel? _channel;
         private readonly string queueName = "order_queue";
-        private readonly IHubContext<OrderHub> _hubContext;
+        private IHubContext<OrderHub> _hubContext;
 
-        public OrderConsumer(IHubContext<OrderHub> hubContext, IConfiguration config)
+        public OrderConsumer(IHubContext<OrderHub> hubContext, IConfiguration config, IOptions<JsonOptions> jsonOptions)
         {
             _hubContext = hubContext;
             _config = config;
+            _jsonOptions = jsonOptions.Value.SerializerOptions;
         }
 
         public override async Task<Task> StartAsync(CancellationToken cancellationToken)
@@ -53,9 +57,10 @@ namespace anotaki_api.Queues.Consumers
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
 
-                    var order = JsonSerializer.Deserialize<Order>(message) ?? throw new Exception("Error consuming order.");
+                    var order = JsonSerializer.Deserialize<Order>(message, _jsonOptions)
+                                   ?? throw new InvalidOperationException("Error deserializing order - result was null.");
 
-                    await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrder", order, stoppingToken);
+                    await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrder", order);
 
                     // Confirma o processamento da mensagem
                     Console.WriteLine($"[x] Processed: {message}");

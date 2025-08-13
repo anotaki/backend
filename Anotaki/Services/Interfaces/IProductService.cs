@@ -11,8 +11,10 @@ namespace anotaki_api.Services.Interfaces
         Task<Product> CreateProduct(CreateProductRequestDTO product);
         Task DeleteProduct(int id);
         Task<List<Product>> GetAllProducts();
+        Task<Product?> GetById(int id);
         Task<PaginatedDataResponse<Product>> GetPaginatedProducts(PaginationParams paginationParams);
         Task<List<ProductsByCategory>> ProductsFilterByCategory();
-        Task<Product> UpdateProduct(Product updated);
+        Task ToggleProductStatus(int id);
+        Task<Product> UpdateProduct(CreateProductRequestDTO updated, int id);
     }
 }

@@ -16,7 +16,8 @@ namespace anotaki_api.Models
 
 		public string Description { get; set; }
 
-		public string ImageUrl { get; set; }
+		public string? ImageMimeType { get; set; }
+        public byte[]? ImageData { get; set; }
 
 		public List<ProductExtra> Extras { get; set; } = [];
 
@@ -24,6 +25,8 @@ namespace anotaki_api.Models
 		public Category? Category { get; set; }
 
 		public DateTime CreatedAt { get; set; }
+		
+		public bool IsActive { get; set; }
 
 		public int SalesCount { get; set; }
 	}
