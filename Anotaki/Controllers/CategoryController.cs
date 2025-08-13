@@ -1,5 +1,8 @@
-﻿using anotaki_api.DTOs.Response.Api;
+﻿using anotaki_api.DTOs.Requests.Api;
+using anotaki_api.DTOs.Requests.Category;
+using anotaki_api.DTOs.Response.Api;
 using anotaki_api.Models;
+using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +17,26 @@ namespace anotaki_api.Controllers
 		private readonly ICategoryService _categoryService = categoryService;
 		private readonly IUserService _userService = userService;
 
+        [HttpPost("paginated")]
+        public async Task<IActionResult> GetPaginatedProducts([FromBody] PaginationParams paginationParams)
+        {
+            try
+            {
+                var data = await _categoryService.GetPaginatedCategories(paginationParams);
+                return ApiResponse.Create("Getting All Categories", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get All Categories", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
         [HttpGet]
 		public async Task<IActionResult> GetAllCategories()
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
 				var data = await _categoryService.GetAllCategories();
 				return ApiResponse.Create("Categories retrieved successfully.", StatusCodes.Status200OK, data);
 			}
@@ -33,15 +47,11 @@ namespace anotaki_api.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCategory([FromQuery] string name)
+		public async Task<IActionResult> CreateCategory([FromBody] FormCategoryRequestDto dto)
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-				var data = await _categoryService.CreateCategory(name);
+				var data = await _categoryService.CreateCategory(dto);
 				return ApiResponse.Create("Category created successfully.", StatusCodes.Status201Created, data);
 			}
 			catch (Exception ex)
@@ -55,10 +65,6 @@ namespace anotaki_api.Controllers
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
 				await _categoryService.DeleteCategory(id);
 				return ApiResponse.Create("Category delete successfully.", StatusCodes.Status200OK, id);
 			}
@@ -69,15 +75,11 @@ namespace anotaki_api.Controllers
 		}
 
 		[HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory([FromRoute] int id,[FromQuery] string name)
+        public async Task<IActionResult> UpdateCategory([FromRoute] int id,[FromBody] FormCategoryRequestDto dto)
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-				var data = await _categoryService.UpdateCategory(name, id);
+				var data = await _categoryService.UpdateCategory(dto, id);
 				return ApiResponse.Create("Category Updated", StatusCodes.Status200OK, data);
 			}
 			catch (Exception ex)

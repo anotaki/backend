@@ -5,19 +5,39 @@ namespace anotaki_api.Models
 	public class Order
 	{
 		public int Id { get; set; }
+		public string? Notes { get; set; }
+		public decimal TotalPrice { get; set; }
+		
+		public OrderStatus OrderStatus { get; set; }
+		
 		public DateTime CreatedAt { get; set; }
 		public DateTime UpdatedAt { get; set; }
-		public OrderStatus OrderStatus { get; set; }
-		public int UserId { get; set; }
-		public User User { get; set; }
-		public int? AddressId { get; set; }
-		public Address Address { get; set; }
-		public List<OrderProductItem> Items { get; set; } = [];
-
+		
 		public int? PaymentMethodId { get; set; }
 		public PaymentMethod? PaymentMethod { get; set; }
-		public decimal TotalPrice { get; set; }
-		public string? Notes { get; set; }
+		
+		public int UserId { get; set; }
+		public User User { get; set; }
+		
+		public int? AddressId { get; set; }
+		public Address Address { get; set; }
+		
+		public List<OrderProductItem> Items { get; set; } = [];
+		public List<OrderLog> Logs { get; set; } = [];
+	}
+
+	public class OrderLog
+	{
+		public int Id { get; set; }
+		public string Description { get; set; }
+		public OrderStatus Status { get; set; }
+		public DateTime CreatedAt { get; set; }
+		
+		public int UserId { get; set; }
+		public User User { get; set; }
+
+		public int OrderId { get; set; }
+		public Order Order { get; set; }
 	}
 
 	public enum OrderStatus

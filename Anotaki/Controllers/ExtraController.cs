@@ -1,6 +1,8 @@
-﻿using anotaki_api.DTOs.Requests.Extra;
+﻿using anotaki_api.DTOs.Requests.Api;
+using anotaki_api.DTOs.Requests.Extra;
 using anotaki_api.DTOs.Response.Api;
 using anotaki_api.Models;
+using anotaki_api.Services;
 using anotaki_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,16 +17,26 @@ namespace anotaki_api.Controllers
 		private readonly IExtraService _extraService = extraService;
 		private readonly IUserService _userService = userService;
 
-		[HttpGet]
+        [HttpPost("paginated")]
+        public async Task<IActionResult> GetPaginatedExtras([FromBody] PaginationParams paginationParams)
+        {
+            try
+            {
+                var data = await _extraService.GetPaginatedExtras(paginationParams);
+                return ApiResponse.Create("Getting All Extras", StatusCodes.Status200OK, data);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed to Get All Extras", StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetAllExtras()
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
 				var data = await _extraService.GetAllExtras();
 				return ApiResponse.Create("Extras retrieved successfully.", StatusCodes.Status200OK, data);
 			}
@@ -39,10 +51,6 @@ namespace anotaki_api.Controllers
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
 				var data = await _extraService.CreateExtra(dto);
 				return ApiResponse.Create("Extra created successfully.", StatusCodes.Status201Created, data);
 			}
@@ -53,16 +61,12 @@ namespace anotaki_api.Controllers
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteExtra([FromRoute] int extraId)
+		public async Task<IActionResult> DeleteExtra([FromRoute] int id)
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-				await _extraService.DeleteExtra(extraId);
-				return ApiResponse.Create("Extra delete successfully.", StatusCodes.Status200OK, extraId);
+				await _extraService.DeleteExtra(id);
+				return ApiResponse.Create("Extra delete successfully.", StatusCodes.Status200OK, id);
 			}
 			catch (Exception ex)
 			{
@@ -70,16 +74,12 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPatch]
-		public async Task<IActionResult> UpdateExtra([FromBody] Extra extra)
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateExtra([FromBody] Extra extra, [FromRoute] int id)
 		{
 			try
 			{
-				var user = await _userService.GetContextUser(User);
-				if (user == null)
-					return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
-
-				var data = await _extraService.UpdateExtra(extra);
+				var data = await _extraService.UpdateExtra(extra, id);
 				return ApiResponse.Create("Extra Updated", StatusCodes.Status200OK, data);
 			}
 			catch (Exception ex)
