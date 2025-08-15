@@ -31,6 +31,30 @@ namespace anotaki_api.Controllers
             }
         }
 
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetOrders([FromRoute] int userId)
+        {
+			//var user = await _userService.GetContextUser(User);
+			//if (user == null)
+			//	return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+			//if (userId != user.Id)
+			//{
+			//	return ApiResponse.Create("Permission denied.", StatusCodes.Status403Forbidden);
+			//}
+
+			try
+            {
+                var orders = await _orderService.GetOrdersByUser(userId);
+
+                return ApiResponse.Create("Successful.", StatusCodes.Status200OK, orders);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed getting cart info." + ex.Message, StatusCodes.Status400BadRequest);
+            }
+        }
+
         [HttpGet("cart")]
 		public async Task<IActionResult> GetCart()
 		{
@@ -50,7 +74,7 @@ namespace anotaki_api.Controllers
 					Items = cart.Items,
 				};
 
-				return ApiResponse.Create("Successful.", StatusCodes.Status201Created, data);
+				return ApiResponse.Create("Successful.", StatusCodes.Status200OK, data);
 			}
 			catch (Exception ex)
 			{
@@ -71,7 +95,7 @@ namespace anotaki_api.Controllers
 
 				var updatedCart = await _orderService.AddProductToOrder(cart, user, dto);
 
-				return ApiResponse.Create($"Added product id {dto.ProductId} successfully.", StatusCodes.Status201Created, updatedCart);
+				return ApiResponse.Create($"Added product id {dto.ProductId} successfully.", StatusCodes.Status200OK, updatedCart);
 			}
 			catch (Exception ex)
 			{
@@ -95,7 +119,7 @@ namespace anotaki_api.Controllers
 
 				await _orderService.CheckoutOrder(cart, dto, user.Id);
 
-				return ApiResponse.Create($"Order processed sucessfully.", StatusCodes.Status201Created);
+				return ApiResponse.Create($"Order processed sucessfully.", StatusCodes.Status200OK);
 			}
 			catch (Exception ex)
 			{

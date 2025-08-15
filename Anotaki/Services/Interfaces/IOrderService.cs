@@ -13,6 +13,7 @@ namespace anotaki_api.Services.Interfaces
         Task<Order> GetCart(int userId);
         Task<Order> GetOrderDetails(int orderId);
         Task<Order?> GetOrderById(int cartId);
+        Task<List<Order>> GetOrdersByUser(int userId);
         Task<PaginatedDataResponse<Order>> GetPaginatedOrders(PaginationParams paginationParams);
         Task<Order> ChangeOrderStatus(int orderId, int orderStatus, int userId);
     }

@@ -130,6 +130,18 @@ namespace anotaki_api.Services
             return await _context.Orders.FindAsync(orderId);
         }
 
+        public async Task<List<Order>> GetOrdersByUser(int userId)
+        {
+			return await _context.Orders
+				.Where(x => x.OrderStatus != OrderStatus.Cart && x.UserId == userId)
+				.Include(x => x.Items)
+					.ThenInclude(x => x.Product)
+				.Include(x => x.Address)
+				.OrderByDescending(x => x.CreatedAt)
+				.AsNoTracking()
+				.ToListAsync();
+        }
+
         public async Task CheckoutOrder(Order order, CheckoutOrderDTO dto, int userId)
         {
             //calculos e afins antes
