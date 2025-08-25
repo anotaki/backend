@@ -34,14 +34,14 @@ namespace anotaki_api.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetOrders([FromRoute] int userId)
         {
-			//var user = await _userService.GetContextUser(User);
-			//if (user == null)
-			//	return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+			var user = await _userService.GetContextUser(User);
+			if (user == null)
+				return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
 
-			//if (userId != user.Id)
-			//{
-			//	return ApiResponse.Create("Permission denied.", StatusCodes.Status403Forbidden);
-			//}
+			if (userId != user.Id)
+			{
+				return ApiResponse.Create("Permission denied.", StatusCodes.Status403Forbidden);
+			}
 
 			try
             {
@@ -91,9 +91,7 @@ namespace anotaki_api.Controllers
 
 			try
 			{
-				var cart = await _orderService.GetCart(user.Id);
-
-				var updatedCart = await _orderService.AddProductToOrder(cart, user, dto);
+				var updatedCart = await _orderService.AddProductToOrder(user, dto);
 
 				return ApiResponse.Create($"Added product id {dto.ProductId} successfully.", StatusCodes.Status200OK, updatedCart);
 			}
@@ -103,7 +101,26 @@ namespace anotaki_api.Controllers
 			}
 		}
 
-		[HttpPost("checkout-order")]
+        [HttpPatch("cart")]
+        public async Task<IActionResult> ChangeProductQuantity([FromBody] ChangeProductQuantityDTO dto)
+        {
+            var user = await _userService.GetContextUser(User);
+            if (user == null)
+                return ApiResponse.Create("User not found.", StatusCodes.Status404NotFound);
+
+            try
+            {
+                await _orderService.ChangeProductQuantity(dto, user);
+
+                return ApiResponse.Create($"Success.", StatusCodes.Status200OK);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Create("Failed.", StatusCodes.Status400BadRequest, ex.Message);
+            }
+        }
+
+        [HttpPost("checkout-order")]
 		public async Task<IActionResult> CheckoutOrder([FromBody] CheckoutOrderDTO dto)
 		{
 			var user = await _userService.GetContextUser(User);

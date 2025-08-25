@@ -51,11 +51,11 @@ namespace anotaki_api.Controllers
 
         [HttpGet("menu")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllProductsByCategory()
+        public async Task<IActionResult> GetAllProductsByCategory([FromQuery] string? searchTerm)
         {
             try
             {
-                var data = await _productService.ProductsFilterByCategory();
+                var data = await _productService.ProductsFilterByCategory(searchTerm);
                 return ApiResponse.Create("Success getting the menu", StatusCodes.Status200OK, data);
             }
             catch (Exception ex)

@@ -13,7 +13,7 @@ namespace anotaki_api.Services.Interfaces
         Task<List<Product>> GetAllProducts();
         Task<Product?> GetById(int id);
         Task<PaginatedDataResponse<Product>> GetPaginatedProducts(PaginationParams paginationParams);
-        Task<List<ProductsByCategory>> ProductsFilterByCategory();
+        Task<List<ProductsByCategory>> ProductsFilterByCategory(string? searchTerm);
         Task ToggleProductStatus(int id);
         Task<Product> UpdateProduct(CreateProductRequestDTO updated, int id);
     }

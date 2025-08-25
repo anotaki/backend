@@ -187,20 +187,48 @@ namespace anotaki_api.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<ProductsByCategory>> ProductsFilterByCategory()
+        public async Task<List<ProductsByCategory>> ProductsFilterByCategory(string? searchTerm)
         {
-            var categories = await _context.Categories
+            var categoriesWithProducts = _context.Categories
                 .Include(c => c.Products)
                     .ThenInclude(p => p.Extras)
                         .ThenInclude(pe => pe.Extra)
-                .Where(c => c.Products.Count > 0)
+                .Where(c => c.Products.Count > 0);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                string normalizedTerm = searchTerm.ToLower().Trim();
+
+                categoriesWithProducts = categoriesWithProducts.Where(x => x.Products.Any(x => x.Name.ToLower().Trim().Contains(normalizedTerm)));
+
+                return [..categoriesWithProducts.Select(c => new ProductsByCategory
+                {
+                    Name = c.Name,
+                    Products = c.Products
+                    .Where(p => p.Name.ToLower().Contains(normalizedTerm))
+                    .ToList(),
+                })];
+            }
+
+            var mostOrderedProducts = await _context.Products
+                .OrderByDescending(p => p.SalesCount)
+                .Take(5)
                 .ToListAsync();
 
-            return [.. categories.Select(c => new ProductsByCategory
+            ProductsByCategory mostOrdered = new()
             {
-                Name = c.Name,
-                Products = c.Products,
-            })];
+                Name = "Mais pedidos",
+                Products = mostOrderedProducts
+            };
+
+            return [
+                mostOrdered, 
+                .. categoriesWithProducts.Select(c => new ProductsByCategory
+                {
+                    Name = c.Name,
+                    Products = c.Products,
+                })
+            ];
         }
     }
 }

@@ -7,7 +7,8 @@ namespace anotaki_api.Services.Interfaces
 {
     public interface IOrderService
     {
-        Task<Order> AddProductToOrder(Order order, User user, AddProductToOrderDTO dto);
+        Task<Order> AddProductToOrder(User user, AddProductToOrderDTO dto);
+        Task ChangeProductQuantity(ChangeProductQuantityDTO dto, User user);
         Task CheckoutOrder(Order order, CheckoutOrderDTO dto, int userId);
         Task DeleteOrder(int orderId);
         Task<Order> GetCart(int userId);

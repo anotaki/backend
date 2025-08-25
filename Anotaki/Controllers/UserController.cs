@@ -16,7 +16,6 @@ namespace anotaki_api.Controllers
     {
         private readonly IUserService _userService = userService;
 
-
         [HttpPost("paginated")]
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> GetPaginatedUsers([FromBody] PaginationParams paginationParams)

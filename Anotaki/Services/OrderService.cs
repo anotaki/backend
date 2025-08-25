@@ -106,6 +106,11 @@ namespace anotaki_api.Services
             var cart = await _context.Orders
                 .Include(x => x.Items)
                     .ThenInclude(x => x.Product)
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.ExtrasItems)
+                        .ThenInclude(x => x.Extra)
+                .AsSplitQuery()
+                .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.UserId == userId && o.OrderStatus == OrderStatus.Cart);
 
             if (cart == null)
@@ -132,14 +137,14 @@ namespace anotaki_api.Services
 
         public async Task<List<Order>> GetOrdersByUser(int userId)
         {
-			return await _context.Orders
-				.Where(x => x.OrderStatus != OrderStatus.Cart && x.UserId == userId)
-				.Include(x => x.Items)
-					.ThenInclude(x => x.Product)
-				.Include(x => x.Address)
-				.OrderByDescending(x => x.CreatedAt)
-				.AsNoTracking()
-				.ToListAsync();
+            return await _context.Orders
+                .Where(x => x.OrderStatus != OrderStatus.Cart && x.UserId == userId)
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.Product)
+                .Include(x => x.Address)
+                .OrderByDescending(x => x.CreatedAt)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task CheckoutOrder(Order order, CheckoutOrderDTO dto, int userId)
@@ -151,17 +156,14 @@ namespace anotaki_api.Services
             var paymentMethod =
                  await _context.PaymentMethods.FindAsync(dto.PaymentMethodId) ?? throw new Exception($"Payment Method with id {dto.PaymentMethodId} not found.");
 
-            var totalPriceOrder = 0M;
             foreach (var item in order.Items)
             {
-                totalPriceOrder += item.Quantity * item.TotalPrice;
-
-                item.Product.SalesCount+= item.Quantity;
+                item.Product.SalesCount += item.Quantity;
             }
 
             order.AddressId = address.Id;
             order.PaymentMethodId = paymentMethod.Id;
-            order.TotalPrice = totalPriceOrder;
+            order.TotalPrice = CalculateOrderTotalPrice(order);
             order.OrderStatus = OrderStatus.Pending;
             order.Notes = dto.Notes;
 
@@ -185,43 +187,111 @@ namespace anotaki_api.Services
             await _orderPublisher.Publish(order);
         }
 
-        public async Task<Order> AddProductToOrder(Order order, User user, AddProductToOrderDTO dto)
+        public async Task<Order> AddProductToOrder(User user, AddProductToOrderDTO dto)
         {
-            var product = await _context.Products.FindAsync(dto.ProductId);
+            var cart = await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.ExtrasItems)
+                        .ThenInclude(x => x.Extra)
+                .FirstOrDefaultAsync(o => o.UserId == user.Id && o.OrderStatus == OrderStatus.Cart)
+                ?? throw new Exception("Cart not found.");
 
-            if (product == null)
-                throw new Exception($"Product with id {dto.ProductId} not found.");
+            var product = await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == dto.ProductId)
+                ?? throw new Exception($"Product with id {dto.ProductId} not found.");
 
-            var productItem = new OrderProductItem()
+            var extraIds = dto.Extras.Select(e => e.ExtraId).ToList();
+            var extras = await _context.Extras
+                .AsNoTracking()
+                .Where(ex => extraIds.Contains(ex.Id))
+                .ToDictionaryAsync(ex => ex.Id);
+
+            var productItem = new OrderProductItem
             {
-                OrderId = order.Id,
+                OrderId = cart.Id,
                 ProductId = dto.ProductId,
                 Quantity = 1,
                 UnitPrice = product.Price,
-                ExtrasItems = dto.Extras.Select(x => new OrderExtraItem() { ExtraId = x.ExtraId, Quantity = x.Quantity }).ToList(),
                 Notes = dto.Notes,
+                ExtrasItems = dto.Extras.Select(x =>
+                {
+                    if (!extras.TryGetValue(x.ExtraId, out var extra))
+                        throw new Exception($"Extra with id {x.ExtraId} not found.");
+
+                    return new OrderExtraItem
+                    {
+                        ExtraId = x.ExtraId,
+                        UnitPrice = extra.Price,
+                        Quantity = x.Quantity,
+                        TotalPrice = x.Quantity * extra.Price
+                    };
+                }).ToList()
             };
 
-            var totalPriceProductItem = product.Price * productItem.Quantity;
+            productItem.TotalPrice = productItem.UnitPrice * productItem.Quantity
+                + productItem.ExtrasItems.Sum(e => e.UnitPrice * e.Quantity);
 
-            foreach (var item in productItem.ExtrasItems)
-            {
-                var extra = _context.Extras.Find(item.ExtraId);
-                if (extra == null)
-                    throw new Exception($"Extra with id {item.ExtraId} not found.");
+            cart.TotalPrice += productItem.TotalPrice;
 
-                totalPriceProductItem += item.Quantity * extra.Price;
-            }
-
-            productItem.TotalPrice = totalPriceProductItem;
-
-            order.Items.Add(productItem);
-            order.TotalPrice += productItem.TotalPrice;
-
-            _context.Update(order);
+            _context.OrderProductItems.Add(productItem);
             await _context.SaveChangesAsync();
 
-            return order;
+            return cart;
+        }
+
+        public decimal CalculateOrderTotalPrice(Order order)
+        {
+            var totalPriceOrder = 0M;
+            if (order.Items == null || order.Items.Count == 0)
+                return 0M;
+
+            return totalPriceOrder += order.Items.Sum(o => o.TotalPrice);
+        }
+
+
+        public async Task ChangeProductQuantity(ChangeProductQuantityDTO dto, User user)
+        {
+            var cart = await _context.Orders
+                 .Include(o => o.Items)
+                    .ThenInclude(i => i.Product)
+                 .Include(o => o.Items)
+                    .ThenInclude(i => i.ExtrasItems)
+                        .ThenInclude(e => e.Extra)
+                 .FirstOrDefaultAsync(o => o.UserId == user.Id && o.OrderStatus == OrderStatus.Cart) ?? throw new Exception("Cart not found.");
+
+            var cartItem = cart.Items.FirstOrDefault(i => i.Id == dto.ItemId) ?? throw new Exception("Item not found.");
+
+            cartItem.UnitPrice = cartItem.Product?.Price ?? 0;
+            var itemPrice = (cartItem.UnitPrice * 1) + (cartItem.ExtrasItems.Sum(x => x.TotalPrice) * 1);
+
+            if (dto.Operation == ChangeProductQuantityOperations.Add)
+            {
+                cartItem.Quantity += 1;
+                cartItem.TotalPrice += itemPrice;
+            }
+            else
+            {
+                if (cartItem.Quantity == 1)
+                {
+                    cart.Items.Remove(cartItem);
+                    cart.TotalPrice = CalculateOrderTotalPrice(cart);
+
+                    _context.OrderProductItems.Remove(cartItem);
+
+                    await _context.SaveChangesAsync();
+
+                    return;
+                }
+
+                cartItem.Quantity -= 1;
+                cartItem.TotalPrice -= itemPrice;
+            }
+
+            cart.TotalPrice = CalculateOrderTotalPrice(cart);
+
+            _context.OrderProductItems.Update(cartItem!);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteOrder(int orderId)
@@ -298,7 +368,7 @@ namespace anotaki_api.Services
             {
                 Description = description,
                 Status = orderStatus,
-                OrderId = (int) orderId,
+                OrderId = (int)orderId,
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow,
             } : new OrderLog

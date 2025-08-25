@@ -74,7 +74,9 @@ namespace anotaki_api.Models
 	public class OrderExtraItem
 	{
 		public int Id { get; set; }
-		public int ExtraId { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal TotalPrice { get; set; }
+        public int ExtraId { get; set; }
 		public Extra Extra { get; set; }
 		public int OrderProductItemId { get; set; }
 
